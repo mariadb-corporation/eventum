@@ -575,21 +575,30 @@ class Notification
      */
     public static function getUsersByIssue($issue_id, $type)
     {
+        $prj_id = Issue::getProjectID($issue_id);
         if ($type == 'notes') {
-            $stmt = 'SELECT
+            $stmt = "SELECT
                         DISTINCT sub_usr_id,
-                        sub_email
+                        sub_email,
+                        usr_email
                      FROM
-                        {{%subscription}}
+                        {{%subscription}},
+                        {{%user}},
+                        {{%project_user}}
                      WHERE
-                        sub_iss_id=? AND
-                        sub_usr_id IS NOT NULL AND
-                        sub_usr_id <> 0';
+                        usr_id = sub_usr_id AND
+                        pru_usr_id = usr_id AND
+                        pru_prj_id = ? AND
+                        pru_role >= ? AND
+                        usr_status = 'active' AND
+                        sub_iss_id=?";
             $params = [
+                $prj_id,
+                User::ROLE_USER,
                 $issue_id,
             ];
         } else {
-            $stmt = 'SELECT
+            $stmt = "SELECT
                         DISTINCT sub_usr_id,
                         sub_email,
                         pru_role
@@ -603,10 +612,15 @@ class Notification
                           ON
                             sub_usr_id = pru_usr_id AND
                             pru_prj_id = ?
+                        LEFT JOIN
+                          {{%user}}
+                          ON
+                            sub_usr_id = usr_id
                      WHERE
+                        (usr_status = 'active' OR usr_status IS NULL) AND
                         sub_iss_id=? AND
                         sub_id=sbt_sub_id AND
-                        sbt_type=?';
+                        sbt_type=?";
             $params = [
                 Issue::getProjectID($issue_id), $issue_id, $type,
             ];
@@ -1699,7 +1713,7 @@ class Notification
             $stmt .= ',
                      {{%subscription_type}}';
         }
-        $stmt .= '
+        $stmt .= "
                     )
                     LEFT JOIN
                         {{%project_user}}
@@ -1707,7 +1721,8 @@ class Notification
                         (sub_usr_id = pru_usr_id AND pru_prj_id = ?)
                  WHERE
                     sub_usr_id=usr_id AND
-                    sub_iss_id=?';
+                    usr_status = 'active' AND
+                    sub_iss_id=?";
         $params = [
             $prj_id, $issue_id,
         ];
