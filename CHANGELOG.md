@@ -4,15 +4,17 @@
 
 Upgrading to 3.4.x versions requires that you upgrade to 3.2.0 version first.
 
-NOTE: Mail related Workflow methods changed singature, see #263
+NOTE: Mail related Workflow methods changed signature, see #263
 
 - Use Doctrine as ORM for SCM and IssueAssociation (@glensc, #307)
 - Support multiple selections in search fields (@inguin, #323)
 - Add EventDispatcher events for SCM actions (@glensc, #328)
 - Gracefully deal with commits from unknown SCM repositories (@inguin, #327)
 - Make LDAP user ID attribute configurable, add help page (@inguin, #329)
-- Drop `pear/mime_decode`, `pear/mail_mime` in favor of `Zend\Mail` (@glensc, #263)
+- Drop `pear/mime_decode`, `pear/mail_mime` in favor of `Zend\Mail` (@glensc, #263, #333, #334, #335)
 - Use `symfony/filesystem` for file writes (@glensc, #331)
+- Add `EventDispatcher` to console commands (@glensc, #337)
+- Mail-Download: fix `user_id` fetch using email header (@glensc, #336)
 
 [3.4.0]: https://github.com/eventum/eventum/compare/v3.3.3...master
 
