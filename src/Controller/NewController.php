@@ -21,6 +21,7 @@ use CRM;
 use CRMException;
 use Custom_Field;
 use Date_Helper;
+use DB_Helper;
 use Eventum\Attachment\AttachmentManager;
 use Group;
 use Issue;
@@ -118,7 +119,7 @@ class NewController extends BaseController
         $sql = "SELECT
                     iss_id
                 FROM
-                    {{%issue}}
+                    `issue`
                 WHERE
                     iss_customer_id = ? AND
                     iss_customer_contact_id = ? AND
