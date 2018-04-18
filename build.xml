@@ -10,11 +10,6 @@
 		<phplint haltonfailure="true" cachefile="${basedir}/.phplint.cache">
 			<fileset dir="${basedir}">
 				<include name="**/*.php"/>
-				<!--
-					skip autoload_static.php from phplint
-					it requires php 5.6 and is loaded conditionally by autoload_real.php
-				 -->
-				<exclude name="vendor/composer/autoload_static.php"/>
 				<exclude name=".idea/**"/>
 				<exclude name="releases/**"/>
 				<exclude name="var/**"/>
@@ -70,6 +65,7 @@
 				<include name="**/*Trait.php"/>
 				<exclude name="league/flysystem/src/ConfigAwareTrait.php"/>
 				<exclude name="league/flysystem/src/Plugin/PluggableTrait.php"/>
+				<exclude name="cebe/markdown/*/*Trait.php"/>
 			</fileset>
 
 			<!-- whole dirs -->
@@ -196,6 +192,10 @@
 				<include name="bin/**"/>
 			</fileset>
 
+			<fileset dir="${vendor}/cebe/markdown">
+				<include name="bin/**"/>
+			</fileset>
+
 			<fileset dir="${vendor}/doctrine/dbal/lib/Doctrine/DBAL">
 				<include name="Driver/**DB2*"/>
 				<include name="Driver/**Drizzle**"/>
@@ -235,7 +235,6 @@
 				<include name="Schema/SQLServer*"/>
 				<include name="Schema/Sqlite*"/>
 				<include name="Sharding/SQLAzure/**"/>
-				<include name="Tools/**"/>
 			</fileset>
 
 			<fileset dir="${vendor}/doctrine/orm">

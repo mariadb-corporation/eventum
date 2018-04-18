@@ -247,6 +247,7 @@ class Misc
     {
         $val = trim($val);
         $last = strtolower($val[strlen($val) - 1]);
+        $val = (float)$val;
         switch ($last) {
             // The 'G' modifier is available since PHP 5.1.0
             /** @noinspection PhpMissingBreakStatementInspection */
@@ -261,7 +262,8 @@ class Misc
                 $val *= 1024;
         }
 
-        return $val;
+        // try to return int if it fits, otherwise float
+        return $val > PHP_INT_MAX ? $val : (int)$val;
     }
 
     /**
@@ -441,6 +443,12 @@ class Misc
      */
     public static function activateLinks($text, $class = 'link')
     {
+        // process issue link separatly since it has to do something special
+        if (Link_Filter::markdownEnabled()) {
+            // conflicts with markdown
+            return $text;
+        }
+
         $range = '[-\w+@=?.%/:&;~|,#\[\]]+';
         // FIXME: handle the base of email addresses surrounded by <>, i.e.
         // Bryan Alsdorf <bryan@askmonty.org>
@@ -553,6 +561,10 @@ class Misc
      */
     public static function highlightQuotedReply($text)
     {
+        if (Link_Filter::markdownEnabled()) {
+            return $text;
+        }
+
         require_once APP_INC_PATH . '/smarty/modifier.highlight_quoted.php';
 
         return smarty_modifier_highlight_quoted($text);

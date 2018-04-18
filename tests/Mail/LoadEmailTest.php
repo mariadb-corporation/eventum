@@ -11,18 +11,16 @@
  * that were distributed with this source code.
  */
 
-/*
- * PHPUnit versions Travis:
- * PHP 5.5.38: PHPUnit 4.8.27
- * PHP 5.6.24: PHPUnit 5.5.0
- * PHP 7.0.7: PHPUnit 5.3.4
- * PHP 7.1.4: PHPUnit 6.1.1
- * PHP 7.2.0-dev: PHPUnit 6.1.3
- * HHVM 3.18.2: PHPUnit 5.7.2
- */
+namespace Eventum\Test\Mail;
 
-namespace PHPUnit\Framework;
+use Eventum\Mail\MailMessage;
+use Eventum\Test\TestCase;
 
-class TestCase extends \PHPUnit_Framework_TestCase
+class LoadEmailTest extends TestCase
 {
+    public function testLoadBrokenReferences1()
+    {
+        $raw = $this->readDataFile('kallenote.eml');
+        MailMessage::createFromString($raw);
+    }
 }

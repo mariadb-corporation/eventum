@@ -15,8 +15,25 @@ NOTE: Mail related Workflow methods changed signature, see #263
 - Use `symfony/filesystem` for file writes (@glensc, #331)
 - Add `EventDispatcher` to console commands (@glensc, #337)
 - Mail-Download: fix `user_id` fetch using email header (@glensc, #336)
+- Added support for "checkbox" custom fields on advanced search page (@balsdorf, #347)
+- Mail Queue: set message status failed after 20 retries (@glensc, #353)
+- Mail Queue: fill Message-Id column (@glensc, #352)
+- Mail Queue: Fix empty from header check (@glensc, #350, #351)
+- Use filename-normalizer for attachment filenames extracted from emails (@glensc, #356)
+- Fix Open Redirect vulnerability found by NetSparker (https://www.netsparker.com/, @balsdorf)
+- Add experimental markdown rendering (@glensc, #291)
+- Update to defuse/php-encryption 2.1 (@glensc, #358)
 
-[3.4.0]: https://github.com/eventum/eventum/compare/v3.3.3...master
+[3.4.0]: https://github.com/eventum/eventum/compare/v3.3.5...master
+
+## [3.3.5] - 2018-04-05
+
+Upgrading to 3.3.x versions requires that you upgrade to 3.2.0 version first.
+Eventum 3.3.x requires PHP 5.6.
+
+- Fix Open Redirect vulnerability found by NetSparker (https://www.netsparker.com/, @balsdorf)
+
+[3.3.5]: https://github.com/eventum/eventum/compare/v3.3.4...v3.3.5
 
 ## [3.3.4] - 2017-11-24
 

@@ -14,9 +14,12 @@
 namespace Eventum\Db;
 
 use LogicException;
+use PDO;
 use Phinx;
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Migration\AbstractMigration as PhinxAbstractMigration;
+use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class AbstractMigration extends PhinxAbstractMigration
 {
@@ -123,15 +126,15 @@ abstract class AbstractMigration extends PhinxAbstractMigration
      *
      * @see https://github.com/robmorgan/phinx/pull/850
      * @param string $value
+     * @param int $parameter_type
      * @return string
      */
-    protected function quoteValue($value)
+    protected function quote($value, $parameter_type = PDO::PARAM_STR)
     {
         /** @var MysqlAdapter $adapter */
         $adapter = $this->getAdapter();
-        $connection = $adapter->getConnection();
 
-        return $connection->quote($value);
+        return $adapter->getConnection()->quote($value, $parameter_type);
     }
 
     /**
@@ -157,5 +160,63 @@ abstract class AbstractMigration extends PhinxAbstractMigration
             }
         }
         throw new LogicException('primary_key column not found');
+    }
+
+    /**
+     * Run SQL Query, return single column.
+     *
+     * @param string $sql
+     * @param string $column
+     * @return array
+     */
+    protected function queryColumn($sql, $column)
+    {
+        $st = $this->query($sql);
+        $rows = [];
+        foreach ($st as $row) {
+            $rows[] = $row[$column];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Run SQL Query, return key => value pairs
+     *
+     * @param string $sql
+     * @param string $keyColumn
+     * @param string $valueColumn
+     * @return array
+     */
+    protected function queryPair($sql, $keyColumn, $valueColumn)
+    {
+        $rows = [];
+        foreach ($this->query($sql) as $row) {
+            $key = $row[$keyColumn];
+
+            $rows[$key] = $row[$valueColumn];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Writes a message to the output and adds a newline at the end.
+     *
+     * @param string|array $messages The message as an array of lines of a single string
+     * @param int $options A bitmask of options (one of the OUTPUT or VERBOSITY constants)
+     */
+    protected function writeln($messages, $options = OutputInterface::OUTPUT_NORMAL | OutputInterface::VERBOSITY_NORMAL)
+    {
+        $this->output->writeln($messages, $options);
+    }
+
+    /**
+     * @param int $total
+     * @return ProgressBar
+     */
+    protected function createProgressBar($total)
+    {
+        return new ProgressBar($this->output, $total);
     }
 }
