@@ -34,11 +34,19 @@ class UserEntry
     private $contact_id;
 
     /**
+     * Make raw Entry available to other classes for custom integration
+     *
+     * @var  Entry
+     */
+    public $entry;
+
+    /**
      * @param Entry $entry
      * @param Config $config
      */
     public function __construct(Entry $entry, $config)
     {
+        $this->entry = $entry;
         $customer_id = $this->getAttributeValue($entry, $config['customer_id_attribute']);
         $contact_id = $this->getAttributeValue($entry, $config['contact_id_attribute']);
         $emails = $entry->getAttribute('mail');
