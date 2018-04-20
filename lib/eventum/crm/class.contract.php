@@ -90,7 +90,7 @@ abstract class Contract
     public function __construct(CRM $crm, $contract_id)
     {
         $this->crm = $crm;
-        $this->connection = &$crm->getConnection();
+        $this->connection = $crm->getConnection();
         $this->contract_id = $contract_id;
 
         // attempt to load the data
