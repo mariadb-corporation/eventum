@@ -380,15 +380,7 @@ class Project
             return -1;
         }
 
-        self::removeUserByProjects([$_POST['id']], $_POST['users']);
-        foreach ($_POST['users'] as $user) {
-            if ($user == $_POST['lead_usr_id']) {
-                self::associateUser($_POST['id'], $user, User::ROLE_MANAGER);
-            } else {
-                // users who are now being associated with this project should be set to 'Standard User'
-                self::associateUser($_POST['id'], $user, User::ROLE_USER);
-            }
-        }
+        self::associateUser($_POST['id'], $_POST['lead_usr_id'], User::ROLE_MANAGER);
 
         $statuses = array_keys(Status::getAssocStatusList($_POST['id']));
         if (count($statuses) > 0) {
@@ -499,14 +491,9 @@ class Project
         }
 
         $new_prj_id = DB_Helper::get_last_insert_id();
-        foreach ($_POST['users'] as $user) {
-            if ($user == $_POST['lead_usr_id']) {
-                $role_id = User::ROLE_MANAGER;
-            } else {
-                $role_id = User::ROLE_USER;
-            }
-            self::associateUser($new_prj_id, $user, $role_id);
-        }
+
+        self::associateUser($_POST['id'], $_POST['lead_usr_id'], User::ROLE_MANAGER);
+
         foreach ($_POST['statuses'] as $sta_id) {
             Status::addProjectAssociation($sta_id, $new_prj_id);
         }

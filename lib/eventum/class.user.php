@@ -505,15 +505,23 @@ class User
      *
      * @param   int $prj_id The id of the project to show users from
      * @param   int $role The role ID of the user
+     * @param   bool $include_email If the email address should be included in name
      * @return  array The associative array of users
      */
-    public static function getActiveAssocList($prj_id = null, $role = null)
+    public static function getActiveAssocList($prj_id = null, $role = null, $include_email = false)
     {
-        $stmt = 'SELECT
+        if ($include_email) {
+            $name_field = "CONCAT(usr_full_name, ' <', usr_email, '>')";
+        } else {
+            $name_field = 'usr_full_name';
+        }
+
+
+        $stmt = "SELECT
                     usr_id,
-                    usr_full_name
+                    $name_field
                  FROM
-                    `user`';
+                    `user`";
         $params = [];
 
         if ($prj_id) {
