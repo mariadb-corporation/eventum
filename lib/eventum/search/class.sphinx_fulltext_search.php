@@ -107,6 +107,8 @@ class Sphinx_Fulltext_Search extends Abstract_Fulltext_Search
 
     public function getExcerpts()
     {
+        // MARIADB-CSTM: Disable excerpts for now as they are buggy
+        return false;
         if (count($this->matches) < 1) {
             return false;
         }
