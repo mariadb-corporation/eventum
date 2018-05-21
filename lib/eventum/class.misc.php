@@ -812,4 +812,24 @@ class Misc
 
         return 'attachment';
     }
+
+
+    /**
+     * Remove any objects from the input.
+     *
+     * @param $input
+     * @return string|\string[]
+     */
+    public static function removeNestedObjects($input)
+    {
+        $remover = function ($element) {
+            if (is_object($element)) {
+                return null;
+            } else {
+                return $element;
+            }
+        };
+
+        return self::recursiveWalk($input, $remover);
+    }
 }

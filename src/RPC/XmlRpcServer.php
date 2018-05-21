@@ -231,11 +231,7 @@ class XmlRpcServer
                 $params[] = $this->encoder->decode($message->getParam($i));
             }
 
-            if ($pdesc) {
-                $this->decodeParams($params, $pdesc);
-            }
-
-            return $this->handle($method, $params, $public);
+            return $this->handle($method, $params, $public, $pdesc);
         };
 
         return $function;
@@ -247,7 +243,7 @@ class XmlRpcServer
      * @param bool $public true if method should not be protected with login/password
      * @return string
      */
-    private function handle($method, $params, $public)
+    private function handle($method, $params, $public, $pdesc)
     {
         try {
             $email = null;
@@ -260,6 +256,10 @@ class XmlRpcServer
                 }
 
                 AuthCookie::setAuthCookie($email);
+            }
+
+            if ($pdesc) {
+                $this->decodeParams($params, $pdesc);
             }
 
             $res = $method->invokeArgs($this->api, $params);
