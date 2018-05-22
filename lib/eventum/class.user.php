@@ -1167,7 +1167,8 @@ class User
         Prefs::set($usr_id, Prefs::getDefaults($projects));
 
         // send email to user
-        Notification::notifyNewUser($usr_id, $user['password']);
+        // MARIADB-CSTM: Don't notify user of new account
+//        Notification::notifyNewUser($usr_id, $user['password']);
 
         // add user id and do not expose password to event
         $user['id'] = $usr_id;
