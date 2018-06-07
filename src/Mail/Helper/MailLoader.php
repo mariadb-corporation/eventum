@@ -54,8 +54,8 @@ class MailLoader
     public static function encodeHeaders(array &$headers)
     {
         foreach ($headers as $k => $v) {
-            // Zend\Mail does not like empty headers, "Cc:" for example
-            if ($v === '') {
+            // Zend\Mail does not like empty headers, "Cc:" for example or having an empty Sender
+            if ($v === '' || $v === 'Sender:') {
                 unset($headers[$k]);
             }
 
