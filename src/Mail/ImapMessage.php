@@ -76,7 +76,7 @@ class ImapMessage extends MailMessage
 
         // MARIADB-CSTM: Need to clean this up before merging upstream
         // remove invalid empty "Sender: " header
-        $headers = preg_replace("^Sender:\s+$", "", $headers);
+        $headers = preg_replace("/^Sender:\s+$/m", "", $headers);
 
         // fill with "\Seen", "\Deleted", "\Answered", ... etc
         $knownFlags = [
