@@ -74,6 +74,10 @@ class ImapMessage extends MailMessage
         $headers = imap_fetchheader($mbox, $num);
         $content = imap_body($mbox, $num);
 
+        // MARIADB-CSTM: Need to clean this up before merging upstream
+        // remove invalid empty "Sender: " header
+        $headers = preg_replace("^Sender:\s+$", "", $headers);
+
         // fill with "\Seen", "\Deleted", "\Answered", ... etc
         $knownFlags = [
             'recent' => ZendMailStorage::FLAG_RECENT,
