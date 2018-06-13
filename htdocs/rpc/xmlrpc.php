@@ -18,6 +18,7 @@ require_once __DIR__ . '/../../init.php';
 
 // close session
 session_write_close();
+ini_set('html_errors', false);
 
 $api = new RemoteApi();
 $server = new XmlRpcServer($api);

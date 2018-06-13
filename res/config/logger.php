@@ -27,6 +27,11 @@ $formatters = [
         'class' => 'Monolog\\Formatter\\LineFormatter',
         'format' => '%channel%.%level_name%: %message% %context% %extra%',
     ],
+    // https://docs.sentry.io/clients/php/integrations/monolog/
+    'raven_formatter' => [
+        'class' => 'Monolog\\Formatter\\LineFormatter',
+        'format' => '%message% %context% %extra%',
+    ],
 ];
 
 $handlers = [
@@ -50,12 +55,14 @@ $handlers = [
     ],
     'error_handler' => [
         'class' => 'Monolog\\Handler\\ErrorLogHandler',
+        'level' => 'INFO',
         'formatter' => 'error_handler',
     ],
     'error_mailer' => [
         'class' => 'Eventum\\Monolog\\MailHandler',
         'level' => 'ERROR',
     ],
+    /*
     'slack_reporter' => [
         'class' => 'Monolog\\Handler\\SlackWebhookHandler',
         'level' => 'ERROR',
@@ -65,6 +72,16 @@ $handlers = [
         'useShortAttachment' => true,
         'includeContextAndExtra' => true,
     ],
+    // you need to load Raven_Client dependency first:
+    // $ composer require sentry/sentry
+    'raven_reporter' => [
+        'class' => 'Monolog\\Handler\\RavenHandler',
+        'level' => 'ERROR',
+        'ravenClient' => new Raven_Client(
+            'https://xxx:yyy@sentry.io/zzz'
+        ),
+    ],
+    */
 ];
 
 $processors = [
@@ -104,6 +121,7 @@ $loggers = [
             'error_handler',
             'error_mailer',
 //            'slack_reporter',
+//            'raven_reporter',
         ],
         'processors' => $default_processors,
     ],

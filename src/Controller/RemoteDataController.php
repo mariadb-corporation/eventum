@@ -146,7 +146,7 @@ class RemoteDataController extends BaseController
     private function getEmail($id)
     {
         list($ema_id, $sup_id) = explode('-', $id);
-        $info = Support::getEmailDetails($ema_id, $sup_id);
+        $info = Support::getEmailDetails($sup_id);
 
         if (!Issue::canAccess($info['sup_iss_id'], $this->usr_id)) {
             return null;
@@ -239,7 +239,9 @@ class RemoteDataController extends BaseController
             return $res['maq_body'];
         }
 
-        return $this->processText(nl2br(htmlspecialchars($res['maq_headers'] . "\n" . $res['maq_body'])));
+        $raw = $res['maq_headers'] . "\n" . $res['maq_body'];
+
+        return nl2br(htmlspecialchars($raw, ENT_SUBSTITUTE));
     }
 
     private function processText($text)

@@ -121,6 +121,7 @@ class BotCommands extends AbstractBotCommands
                     break;
                 }
             // fall through to an error
+            // no break
             default:
                 $this->sendResponse(
                     $data->nick, 'Error: wrong parameter count for "CLOCK" command. Format is "!clock [in|out]".'
@@ -135,9 +136,9 @@ class BotCommands extends AbstractBotCommands
         $email = $this->bot->getEmailByNickname($data->nick);
         $usr_id = User::getUserIDByEmail($email);
 
-        if ($command == 'in') {
+        if ($command === 'in') {
             $res = User::clockIn($usr_id);
-        } elseif ($command == 'out') {
+        } elseif ($command === 'out') {
             $res = User::clockOut($usr_id);
         } else {
             if (User::isClockedIn($usr_id)) {
@@ -231,9 +232,9 @@ class BotCommands extends AbstractBotCommands
                     ino_target_usr_id,
                     ino_category
                  FROM
-                    {{%irc_notice}}
+                    `irc_notice`
                  LEFT JOIN
-                    {{%issue}}
+                    `issue`
                  ON
                     iss_id=ino_iss_id
                  WHERE
@@ -283,7 +284,7 @@ class BotCommands extends AbstractBotCommands
         // mark message as sent
         $stmt
             = "UPDATE
-                    {{%irc_notice}}
+                    `irc_notice`
                  SET
                     ino_status='sent'
                  WHERE

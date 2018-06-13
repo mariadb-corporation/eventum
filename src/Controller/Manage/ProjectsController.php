@@ -93,7 +93,7 @@ class ProjectsController extends ManageBaseController
             [
                 'active_projects' => Project::getAssocList($usr_id, true),
                 'list' => Project::getList(),
-                'user_options' => User::getActiveAssocList(),
+                'user_options' => User::getActiveAssocList(null, null, true),
                 'status_options' => Status::getAssocList(),
                 'customer_backends' => $this->getCustomerBackends(),
                 'workflow_backends' => $this->getWorkflowBackends(),

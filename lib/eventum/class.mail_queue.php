@@ -11,11 +11,12 @@
  * that were distributed with this source code.
  */
 
-use Eventum\Db\DatabaseException;
+use Eventum\Event\SystemEvents;
+use Eventum\EventDispatcher\EventManager;
+use Eventum\Mail\MailBuilder;
 use Eventum\Mail\MailMessage;
 use Eventum\Mail\MailTransport;
-use Zend\Mail\AddressList;
-use Zend\Mail\Header\To;
+use Symfony\Component\EventDispatcher\GenericEvent;
 
 class Mail_Queue
 {
@@ -24,12 +25,19 @@ class Mail_Queue
      */
     const MAX_RETRIES = 20;
 
+    const STATUS_PENDING = 'pending';
+    const STATUS_ERROR = 'error';
+    const STATUS_FAILED = 'failed';
+    const STATUS_SENT = 'sent';
+    const STATUS_TRUNCATED = 'truncated';
+
     /**
      * Adds an email to the outgoing mail queue.
      *
-     * @param array|MailMessage $mail The Mail object
+     * @param MailBuilder|MailMessage $mail
      * @param string $recipient The recipient, can be E-Mail header form ("User <email@example.org>")
      * @param array $options Optional options:
+     * - string $from From address, defaults to system user
      * - integer $save_email_copy Whether to send a copy of this email to a configurable address or not (eventum_sent@)
      * - integer $issue_id The ID of the issue. If false, email will not be associated with issue.
      * - string $type The type of message this is.
@@ -37,24 +45,30 @@ class Mail_Queue
      * - integer $type_id The ID of the event that triggered this notification (issue_id, sup_id, not_id, etc)
      * @return bool true if entry was added to mail queue table
      */
-    public static function addMail($mail, $recipient, array $options = [])
+    public static function queue($mail, $recipient, array $options = [])
     {
-        /** @var MailMessage $mail */
-        if (!$mail instanceof MailMessage) {
-            /** @var array $mail */
-            $mail = MailMessage::createFromHeaderBody($mail['headers'], $mail['body']);
-        }
+        $prj_id = Auth::getCurrentProject(false);
 
         $save_email_copy = isset($options['save_email_copy']) ? $options['save_email_copy'] : 0;
         $issue_id = isset($options['issue_id']) ? $options['issue_id'] : false;
         $type = isset($options['type']) ? $options['type'] : '';
-        $sender_usr_id = isset($options['sender_usr_id']) ? $options['sender_usr_id'] : false;
         $type_id = isset($options['type_id']) ? $options['type_id'] : false;
+        $sender_usr_id = isset($options['sender_usr_id']) ? $options['sender_usr_id'] : null;
 
-        $prj_id = Auth::getCurrentProject(false);
-        Workflow::modifyMailQueue($prj_id, $recipient, $mail, $issue_id, $type, $sender_usr_id, $type_id);
+        if ($mail instanceof MailBuilder) {
+            $mail = $mail->toMailMessage();
+        }
+        $headers = $mail->getHeaders();
+
+        if (!$mail->from) {
+            $from = isset($options['from']) ? $options['from'] : Setup::get()->smtp->from;
+            $mail->setFrom($from);
+        }
+
+        Workflow::modifyMailQueue($prj_id, $recipient, $mail, $options);
 
         // avoid sending emails out to users with inactive status
+        // TODO: use EventDispatcher to handle this
         $recipient_email = Mail_Helper::getEmailAddress($recipient);
         $usr_id = User::getUserIDByEmail($recipient_email);
         if ($usr_id) {
@@ -66,27 +80,28 @@ class Mail_Queue
         }
 
         $recipient = Mail_Helper::fixAddressQuoting($recipient);
-
         $reminder_addresses = Reminder::_getReminderAlertAddresses();
-        $headers = [];
 
-        $role_id = User::getRoleByUser($usr_id, Issue::getProjectID($issue_id));
-        $is_reminder_address = in_array(Mail_Helper::getEmailAddress($recipient), $reminder_addresses);
-        if ($issue_id && ($usr_id && $role_id != User::ROLE_CUSTOMER) || $is_reminder_address) {
-            $headers += Mail_Helper::getSpecializedHeaders($issue_id, $type);
+        if ($issue_id) {
+            $role_id = User::getRoleByUser($usr_id, Issue::getProjectID($issue_id));
+            $is_reminder_address = in_array(Mail_Helper::getEmailAddress($recipient), $reminder_addresses);
+            if (($usr_id && $role_id != User::ROLE_CUSTOMER) || $is_reminder_address) {
+                Mail_Helper::addSpecializedHeaders($mail, $issue_id, $type);
+            }
         }
 
         // try to prevent triggering absence auto responders
-        $headers['precedence'] = 'bulk'; // the 'classic' way, works with e.g. the unix 'vacation' tool
-        $headers['Auto-submitted'] = 'auto-generated'; // the RFC 3834 way
+        $mail->addHeaders([
+            // the 'classic' way, works with e.g. the unix 'vacation' tool
+            'precedence' => 'bulk',
+            // the RFC 3834 way
+            'Auto-submitted' => 'auto-generated',
+        ]);
 
         // if the Date: header is missing, add it.
-        // FIXME: do in class? or add setDate() method?
-        if (!$mail->getHeaders()->has('Date')) {
-            $headers['Date'] = date('D, j M Y H:i:s O');
+        if (!$headers->has('Date')) {
+            $mail->setDate();
         }
-
-        $mail->setHeaders($headers);
 
         $params = [
             'maq_save_copy' => $save_email_copy,
@@ -97,6 +112,7 @@ class Mail_Queue
             'maq_body' => $mail->getContent(),
             'maq_iss_id' => $issue_id ?: null,
             'maq_subject' => $mail->subject,
+            'maq_message_id' => $mail->messageId,
             'maq_type' => $type,
         ];
 
@@ -107,12 +123,8 @@ class Mail_Queue
             $params['maq_type_id'] = $type_id;
         }
 
-        $stmt = 'INSERT INTO {{%mail_queue}} SET ' . DB_Helper::buildSet($params);
-        try {
-            DB_Helper::getInstance()->query($stmt, $params);
-        } catch (DatabaseException $e) {
-            return false;
-        }
+        $stmt = 'INSERT INTO `mail_queue` SET ' . DB_Helper::buildSet($params);
+        DB_Helper::getInstance()->query($stmt, $params);
 
         return true;
     }
@@ -124,208 +136,69 @@ class Mail_Queue
      *
      * @param   string $status The status of the messages that need to be sent
      * @param   int $limit The limit of emails that we should send at one time
-     * @param   bool $merge whether or not to send one merged email for multiple entries with the same status and type
+     * @param   bool $merge whether or not to send one merged email for multiple entries with the same status and type. Functionality DROPPED
      */
     public static function send($status, $limit = null, $merge = false)
     {
         if ($merge !== false) {
-            // TODO: handle self::MAX_RETRIES, but that should be done per queue item
-            foreach (self::_getMergedList($status, $limit) as $maq_ids) {
-                $entries = self::_getEntries($maq_ids);
-
-                $addresslist = new AddressList();
-                foreach ($entries as $entry) {
-                    $recipient = $entry['recipient'];
-                    if (Mime_Helper::is8bit($recipient)) {
-                        $recipient = Mime_Helper::encode($recipient);
-                    }
-
-                    $addresslist->addFromString($recipient);
-                }
-
-                $entry = $entries[0];
-                $m = MailMessage::createFromHeaderBody($entry['headers'], $entry['body']);
-                $m->setTo($addresslist);
-
-                $e = self::_sendEmail($m->to, $m->getHeaders()->toString(), $entry['body']);
-
-                if ($e instanceof Exception) {
-                    $maq_id = implode(',', $maq_ids);
-                    $details = $e->getMessage();
-                    echo "Mail_Queue: issue #{$entry['maq_iss_id']}: Can't send merged mail $maq_id: $details\n";
-
-                    foreach ($entries as $entry) {
-                        self::_saveStatusLog($entry['id'], 'error', $details);
-                    }
-
-                    continue;
-                }
-
-                foreach ($entries as $entry) {
-                    self::_saveStatusLog($entry['id'], 'sent', '');
-
-                    if ($entry['save_copy']) {
-                        Mail_Helper::saveOutgoingEmailCopy($entry);
-                    }
-                }
-            }
-            // FIXME: should not process the list again?
-            //return;
+            throw new RuntimeException('Merged list no longer supported');
         }
 
-        foreach (self::_getList($status, $limit) as $maq_id) {
-            $errors = self::getQueueErrorCount($maq_id);
-            if ($errors > self::MAX_RETRIES) {
-                // TODO: mark as status 'failed'
-                continue;
-            }
+        $dispatcher = EventManager::getEventDispatcher();
+        foreach (self::getEntries($status, $limit) as $entry) {
+            try {
+                $mail = MailMessage::createFromHeaderBody($entry['headers'], $entry['body']);
 
-            $entry = self::_getEntry($maq_id);
-            $e = self::_sendEmail($entry['recipient'], $entry['headers'], $entry['body']);
+                unset($entry['headers'], $entry['body']);
+                $event = new GenericEvent($mail, $entry);
+                $dispatcher->dispatch(SystemEvents::MAIL_QUEUE_SEND, $event);
 
-            if ($e instanceof Exception) {
-                $details = $e->getMessage();
-                echo "Mail_Queue: issue #{$entry['maq_iss_id']}: Can't send mail $maq_id: $details\n";
-                self::_saveStatusLog($entry['id'], 'error', $details);
-                continue;
-            }
+                $transport = new MailTransport();
+                $transport->send($entry['recipient'], $mail);
 
-            self::_saveStatusLog($entry['id'], 'sent', '');
-            if ($entry['save_copy']) {
-                Mail_Helper::saveOutgoingEmailCopy($entry);
+                $dispatcher->dispatch(SystemEvents::MAIL_QUEUE_SENT, $event);
+            } catch (Exception $e) {
+                $event = new GenericEvent($e, $entry);
+                $dispatcher->dispatch(SystemEvents::MAIL_QUEUE_ERROR, $event);
             }
         }
     }
 
     /**
-     * Connects to the SMTP server and sends the queued message.
-     *
-     * @param   string $recipient The recipient of this message
-     * @param   string $text_headers The full headers of this message
-     * @param   string $body The full body of this message
-     * @return  true or a Exception object
-     */
-    private function _sendEmail($recipient, $text_headers, &$body)
-    {
-        $header_names = Mime_Helper::getHeaderNames($text_headers);
-        $_headers = self::_getHeaders($text_headers, $body);
-        $headers = [];
-        foreach ($_headers as $lowercase_name => $value) {
-            // need to remove the quotes to avoid a parsing problem
-            // on senders that have extended characters in the first
-            // or last words in their sender name
-            if ($lowercase_name == 'from') {
-                $value = Mime_Helper::removeQuotes($value);
-            }
-            $value = Mime_Helper::encode($value);
-            // add the quotes back
-            if ($lowercase_name == 'from') {
-                $value = Mime_Helper::quoteSender($value);
-            }
-            $headers[$header_names[$lowercase_name]] = $value;
-        }
-
-        // remove any Reply-To:/Return-Path: values from outgoing messages
-        unset($headers['Reply-To']);
-        unset($headers['Return-Path']);
-
-        // mutt sucks, so let's remove the broken Mime-Version header and add the proper one
-        if (in_array('Mime-Version', array_keys($headers))) {
-            unset($headers['Mime-Version']);
-            $headers['MIME-Version'] = '1.0';
-        }
-
-        $transport = new MailTransport();
-
-        // TODO: mail::send wants just bare addresses, do that ourselves
-        $recipient = Mime_Helper::encodeAddress($recipient);
-
-        return $transport->send($recipient, $headers, $body);
-    }
-
-    /**
-     * Parses the full email message and returns an array of the headers
-     * contained in it.
-     *
-     * @param   string $text_headers The full headers of this message
-     * @param   string $body The full body of this message
-     * @return  array The list of headers
-     */
-    private function _getHeaders($text_headers, &$body)
-    {
-        $message = $text_headers . "\n\n" . $body;
-        $structure = Mime_Helper::decode($message, false, false);
-
-        return $structure->headers;
-    }
-
-    /**
-     * Retrieves the list of queued email messages ids, given a status.
+     * Retrieves the list of queued email messages, given a status.
      *
      * @param   string $status The status of the messages
      * @param   int $limit The limit on the number of messages that need to be returned
-     * @return  array The list of queued email messages
+     * @return Generator
      */
-    private function _getList($status, $limit)
+    private static function getEntries($status, $limit)
     {
-        $limit = (int) $limit;
+        $limit = (int)$limit;
         $sql = "SELECT
                     maq_id id
                  FROM
-                    {{%mail_queue}}
+                    `mail_queue`
                  WHERE
                     maq_status=?
                  ORDER BY
                     maq_id ASC
                  LIMIT
                     $limit OFFSET 0";
-        try {
-            $res = DB_Helper::getInstance()->getColumn($sql, [$status]);
-        } catch (DatabaseException $e) {
-            return [];
+
+        $items = DB_Helper::getInstance()->getColumn($sql, [$status]);
+
+        foreach ($items as $maq_id) {
+            // to avoid re-sending very old errored mails
+            // add this backward compat block.
+            // drop in 3.5.0 and convert to db migrations to set those as 'blocked'
+            $sql = 'select count(*) from `mail_queue_log` where mql_maq_id=? and mql_status=?';
+            $res = DB_Helper::getInstance()->getOne($sql, [$maq_id, self::STATUS_ERROR]);
+            if ((int)$res > self::MAX_RETRIES) {
+                continue;
+            }
+
+            yield self::_getEntry($maq_id);
         }
-
-        return $res;
-    }
-
-    /**
-     * Retrieves the list of queued email messages ids, given a status, merged together by type
-     *
-     * @param   string $status The status of the messages
-     * @param   int $limit The limit on the number of messages that need to be returned
-     * @return  array The list of queued email messages
-     */
-    private function _getMergedList($status, $limit = null)
-    {
-        $sql = 'SELECT
-                    GROUP_CONCAT(maq_id) ids
-                 FROM
-                    {{%mail_queue}}
-                 WHERE
-                    maq_status=?
-                 AND
-                    maq_type_id > 0
-                 GROUP BY
-                    maq_type_id
-                 ORDER BY
-                    MIN(maq_id) ASC';
-
-        $limit = (int) $limit;
-        if ($limit) {
-            $sql .= " LIMIT 0, $limit";
-        }
-
-        try {
-            $res = DB_Helper::getInstance()->getAll($sql, [$status]);
-        } catch (DatabaseException $e) {
-            return [];
-        }
-
-        foreach ($res as &$value) {
-            $value = explode(',', $value['ids']);
-        }
-
-        return $res;
     }
 
     /**
@@ -334,7 +207,7 @@ class Mail_Queue
      * @param   int $maq_id ID of queue entry
      * @return  array The queued email message
      */
-    private function _getEntry($maq_id)
+    private static function _getEntry($maq_id)
     {
         $stmt = 'SELECT
                     maq_id id,
@@ -346,105 +219,11 @@ class Mail_Queue
                     maq_type,
                     maq_usr_id
                  FROM
-                    {{%mail_queue}}
-                 WHERE
-                    maq_id=?';
-        try {
-            $res = DB_Helper::getInstance()->getRow($stmt, [$maq_id]);
-        } catch (DatabaseException $e) {
-            return [];
-        }
-
-        return $res;
-    }
-
-    /**
-     * Retrieves queued email by maq_ids.
-     *
-     * @param   array $maq_ids IDs of queue entries
-     * @return  array The queued email message
-     */
-    private function _getEntries($maq_ids)
-    {
-        $stmt = 'SELECT
-                    maq_id id,
-                    maq_iss_id,
-                    maq_save_copy save_copy,
-                    maq_recipient recipient,
-                    maq_headers headers,
-                    maq_body body,
-                    maq_type,
-                    maq_usr_id
-                 FROM
-                    {{%mail_queue}}
-                 WHERE
-                    maq_id IN (' . implode(',', $maq_ids) . ')';
-        try {
-            $res = DB_Helper::getInstance()->getAll($stmt);
-        } catch (DatabaseException $e) {
-            return [];
-        }
-
-        return $res;
-    }
-
-    /**
-     * Return number of errors for this queue item
-     *
-     * @param int $maq_id
-     * @return int
-     */
-    private function getQueueErrorCount($maq_id)
-    {
-        $sql = 'select count(*) from {{%mail_queue_log}} where mql_maq_id=? and mql_status=?';
-        $res = DB_Helper::getInstance()->getOne($sql, [$maq_id, 'error']);
-
-        return (int) $res;
-    }
-
-    /**
-     * Saves a log entry about the attempt, successful or otherwise, to send the
-     * queued email message. Also updates maq_status of $maq_id to $status.
-     *
-     * @param   int $maq_id The queued email message ID
-     * @param   string $status The status of the attempt ('sent' or 'error')
-     * @param   string $server_message The full message from the SMTP server, in case of an error
-     * @return  bool
-     */
-    private function _saveStatusLog($maq_id, $status, $server_message)
-    {
-        $stmt = 'INSERT INTO
-                    {{%mail_queue_log}}
-                 (
-                    mql_maq_id,
-                    mql_created_date,
-                    mql_status,
-                    mql_server_message
-                 ) VALUES (
-                    ?, ?, ?, ?
-                 )';
-        $params = [
-            $maq_id,
-            Date_Helper::getCurrentDateGMT(),
-            $status,
-            $server_message,
-        ];
-        try {
-            DB_Helper::getInstance()->query($stmt, $params);
-        } catch (DatabaseException $e) {
-            return false;
-        }
-
-        $stmt = 'UPDATE
-                    {{%mail_queue}}
-                 SET
-                    maq_status=?
+                    `mail_queue`
                  WHERE
                     maq_id=?';
 
-        DB_Helper::getInstance()->query($stmt, [$status, $maq_id]);
-
-        return true;
+        return DB_Helper::getInstance()->getRow($stmt, [$maq_id]);
     }
 
     /**
@@ -462,18 +241,13 @@ class Mail_Queue
                     maq_recipient,
                     maq_subject
                  FROM
-                    {{%mail_queue}}
+                    `mail_queue`
                  WHERE
                     maq_iss_id = ?
                  ORDER BY
                     maq_queued_date ASC';
-        try {
-            $res = DB_Helper::getInstance()->getAll($stmt, [$issue_id]);
-        } catch (DatabaseException $e) {
-            return false;
-        }
 
-        return $res;
+        return DB_Helper::getInstance()->getAll($stmt, [$issue_id]);
     }
 
     /**
@@ -494,21 +268,13 @@ class Mail_Queue
                     maq_headers,
                     maq_body
                  FROM
-                    {{%mail_queue}}
+                    `mail_queue`
                  WHERE
                     maq_id = ?';
-        try {
-            $res = DB_Helper::getInstance()->getRow($stmt, [$maq_id]);
-        } catch (DatabaseException $e) {
-            return false;
-        }
 
-        return $res;
+        return DB_Helper::getInstance()->getRow($stmt, [$maq_id]);
     }
 
-    /**
-     * @param int $type_id
-     */
     /**
      * @param string[]|string $types
      * @param int $type_id
@@ -524,17 +290,13 @@ class Mail_Queue
         $sql = "SELECT
                     maq_recipient
                 FROM
-                    {{%mail_queue}}
+                    `mail_queue`
                 WHERE
                     maq_type IN ($types_list) AND
                     maq_type_id = ?";
         $params = $types;
         $params[] = $type_id;
-        try {
-            $res = DB_Helper::getInstance()->getColumn($sql, $params);
-        } catch (DatabaseException $e) {
-            return false;
-        }
+        $res = DB_Helper::getInstance()->getColumn($sql, $params);
 
         foreach ($res as &$row) {
             // FIXME: what does quote stripping fix here
@@ -547,24 +309,18 @@ class Mail_Queue
     /**
      * Truncates the maq_body field of any emails older then one month.
      *
-     * @return bool
+     * @param string $interval MySQL Interval definition
      */
-    public static function truncate()
+    public static function truncate($interval)
     {
         $sql = "UPDATE
-                    {{%mail_queue}}
+                    `mail_queue`
                 SET
                   maq_body = '',
-                  maq_status = 'truncated'
+                  maq_status = ?
                 WHERE
-                    maq_status = 'sent' AND
-                    maq_queued_date <= DATE_SUB(NOW(), INTERVAL 1 MONTH)";
-        try {
-            DB_Helper::getInstance()->query($sql);
-        } catch (DatabaseException $e) {
-            return false;
-        }
-
-        return true;
+                    maq_status = ? AND
+                    maq_queued_date <= DATE_SUB(NOW(), INTERVAL $interval)";
+        DB_Helper::getInstance()->query($sql, [self::STATUS_TRUNCATED, self::STATUS_SENT]);
     }
 }

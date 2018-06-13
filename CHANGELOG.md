@@ -1,6 +1,122 @@
 # Eventum Issue Tracking System
 
-## [3.2.2] - 2017-??-??
+## [3.4.0]
+
+Upgrading to 3.4.x versions requires that you upgrade to 3.2.0 version first.
+
+NOTE: Mail related Workflow methods changed signature, see #263
+
+- Use Doctrine as ORM for SCM and IssueAssociation (@glensc, #307)
+- Support multiple selections in search fields (@inguin, #323)
+- Add EventDispatcher events for SCM actions (@glensc, #328)
+- Gracefully deal with commits from unknown SCM repositories (@inguin, #327)
+- Make LDAP user ID attribute configurable, add help page (@inguin, #329)
+- Drop `pear/mime_decode`, `pear/mail_mime` in favor of `Zend\Mail` (@glensc, #263, #333, #334, #335)
+- Use `symfony/filesystem` for file writes (@glensc, #331)
+- Add `EventDispatcher` to console commands (@glensc, #337)
+- Mail-Download: fix `user_id` fetch using email header (@glensc, #336)
+- Added support for "checkbox" custom fields on advanced search page (@balsdorf, #347)
+- Mail Queue: set message status failed after 20 retries (@glensc, #353)
+- Mail Queue: fill Message-Id column (@glensc, #352)
+- Mail Queue: Fix empty from header check (@glensc, #350, #351)
+- Use filename-normalizer for attachment filenames extracted from emails (@glensc, #356)
+- Fix Open Redirect vulnerability found by NetSparker (https://www.netsparker.com/, @balsdorf)
+- Add experimental markdown rendering (@glensc, #291)
+- Update to defuse/php-encryption 2.1 (@glensc, #358)
+
+[3.4.0]: https://github.com/eventum/eventum/compare/v3.3.5...master
+
+## [3.3.5] - 2018-04-05
+
+Upgrading to 3.3.x versions requires that you upgrade to 3.2.0 version first.
+Eventum 3.3.x requires PHP 5.6.
+
+- Fix Open Redirect vulnerability found by NetSparker (https://www.netsparker.com/, @balsdorf)
+
+[3.3.5]: https://github.com/eventum/eventum/compare/v3.3.4...v3.3.5
+
+## [3.3.4] - 2017-11-24
+
+Upgrading to 3.3.x versions requires that you upgrade to 3.2.0 version first.
+Eventum 3.3.x requires PHP 5.6.
+
+- Fix current url in resolution manage (@phavel, #319)
+- Fix sending same reminder repeatedly (@phavel, #321)
+- Use symfony/ldap for ldap connection (@glensc, #322)
+- Make `git diff`, `git log` on `*.po`/`*.pot` files less useful (@glensc, #325)
+- Don't show inactive users in notification list (@balsdorf, #324)
+- Allow API tokens to be used for RSS Authentication (@balsdorf)
+
+[3.3.4]: https://github.com/eventum/eventum/compare/v3.3.3...v3.3.4
+
+## [3.3.3] - 2017-10-17
+
+Upgrading to 3.3.x versions requires that you upgrade to 3.2.0 version first.
+Eventum 3.3.x requires PHP 5.6.
+
+- Fix mail queue SMTP to use only email address (@glensc, #313, #317)
+- Auth/LDAP: add commandline script (@glensc, #315)
+- Prevent users from viewing "removed" notes (@balsdorf, #316)
+
+[3.3.3]: https://github.com/eventum/eventum/compare/v3.3.2...v3.3.3
+
+## [3.3.2] - 2017-10-11
+
+Upgrading to 3.3.x versions requires that you upgrade to 3.2.0 version first.
+Eventum 3.3.x requires PHP 5.6.
+
+- Fix error deleting attachments when deleting notes (@balsdorf, #312, #314)
+- Use `ssl=tls` for GMail (@glensc, #308, #311)
+
+[3.3.2]: https://github.com/eventum/eventum/compare/v3.3.1...v3.3.2
+
+## [3.3.1] - 2017-10-09
+
+Upgrading to 3.3.x versions requires that you upgrade to 3.2.0 version first.
+Eventum 3.3.x requires PHP 5.6.
+
+v3.3.1 fixes packaging bug present in 3.3.0 version.
+
+- Include league flysystem traits in dist tarball (@glensc, #305)
+- RPC: check that user has access to issue (@glensc, #306)
+
+[3.3.1]: https://github.com/eventum/eventum/compare/v3.3.0...v3.3.1
+
+## [3.3.0] - 2017-10-07
+
+Upgrading to 3.3.0 versions requires that you upgrade to 3.2.0 version first.
+
+The minimum supported PHP version from this version onwards is 5.6.
+
+This version adds support storing attachments in filesystem (#254).
+See [Attachments] wiki page for details.
+
+- Emit history.add events when history entry is added (@glensc, #278)
+- Fix fatal error when downloading emails from unknown sender with CRM enabled (@balsdorf)
+- Use league/flysystem to abstract attachments (@balsdorf, @glensc, #254)
+- Drop unused/deprecated methods (@glensc, #284)
+- Drop support for old setup.php formats (@glensc, #288)
+- Add script to manage extensions from CLI (@glensc, #290)
+- Use mnapoli/silly for cli applications (@glensc, #279)
+- Unify lengths of header fields (@glensc, #266, #295)
+- Add events for user creation/update (@glensc, #289)
+- Harden closeIssue access checks/validation in RPC code (@glensc, #287)
+- Drop table prefix uses from code (@glensc, #296)
+- Handle PDOException HY000 non-numeric values (@glensc, #301)
+- RPC: log actions server side, not by client (@glensc, #303)
+
+[3.3.0]: https://github.com/eventum/eventum/compare/v3.2.3...v3.3.0
+[Attachments]: https://github.com/eventum/eventum/wiki/Attachments
+
+## [3.2.3] - 2017-08-31
+
+Upgrading to 3.2.x versions requires that you upgrade to 3.2.0 version first.
+
+- Add missing template for 'Customize Status Action Dates' page (@balsdorf, #285)
+
+[3.2.3]: https://github.com/eventum/eventum/compare/v3.2.2...v3.2.3
+
+## [3.2.2] - 2017-08-24
 
 Upgrading to 3.2.x versions requires that you upgrade to 3.2.0 version first.
 
@@ -15,8 +131,9 @@ Upgrading to 3.2.x versions requires that you upgrade to 3.2.0 version first.
 - Fix bug auto switching project on update issues page (@balsdorf, 6ffecfc)
 - Catch exception if invalid message is added to mail queue (@balsdorf, 0e55ae2)
 - add real 'Status Change Date' column and rename old column to 'Status Action Date' (@balsdorf, #277)
+- rpc: setIssueStatus: validate parameters server side (@glensc, #280)
 
-[3.2.2]: https://github.com/eventum/eventum/compare/v3.2.1...master
+[3.2.2]: https://github.com/eventum/eventum/compare/v3.2.1...3.2.2
 
 ## [3.2.1] - 2017-06-09
 

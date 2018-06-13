@@ -89,7 +89,7 @@ abstract class Contact
     public function __construct(CRM $crm, $contact_id)
     {
         $this->crm = $crm;
-        $this->connection = &$crm->getConnection();
+        $this->connection = $crm->getConnection();
         $this->contact_id = $contact_id;
 
         // attempt to load the data

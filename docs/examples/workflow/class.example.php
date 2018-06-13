@@ -11,7 +11,9 @@
  * that were distributed with this source code.
  */
 
+use Eventum\Attachment\AttachmentGroup;
 use Eventum\Db\DatabaseException;
+use Eventum\Mail\MailMessage;
 
 /**
  * Example workflow backend class. For example purposes it will print what
@@ -39,10 +41,16 @@ class Example_Workflow_Backend extends Abstract_Workflow_Backend
      * @param   int $prj_id The projectID
      * @param   int $issue_id the ID of the issue
      * @param   int $usr_id the id of the user who locked the issue
+     * @param   AttachmentGroup $attachment_group The attachment object
      */
-    public function handleAttachment($prj_id, $issue_id, $usr_id)
+    public function handleAttachment($prj_id, $issue_id, $usr_id, AttachmentGroup $attachment_group)
     {
         echo "Workflow: File attached<br />\n";
+        echo '<ul>';
+        foreach ($attachment_group->getAttachments() as $attachment) {
+            echo "<li>{$attachment->filename}: {$attachment->filesize}</li>\n";
+        }
+        echo '</ul>';
     }
 
     /**
@@ -127,15 +135,16 @@ class Example_Workflow_Backend extends Abstract_Workflow_Backend
     }
 
     /**
-     * Called when a new message is received.
+     * Called when an email is received.
      *
-     * @param   int $prj_id The projectID
+     * @param   int $prj_id The project ID
      * @param   int $issue_id the ID of the issue
-     * @param   object $message An object containing the new email
+     * @param   MailMessage $mail The Mail object
      * @param   array $row the array of data that was inserted into the database
      * @param   bool $closing if we are closing the issue
+     * @since 3.4.0 uses new signature, see #263
      */
-    public function handleNewEmail($prj_id, $issue_id, $message, $row = false, $closing = false)
+    public function handleNewEmail($prj_id, $issue_id, MailMessage $mail, $row, $closing = false)
     {
         echo 'Workflow: New';
         if ($closing) {
@@ -156,8 +165,8 @@ class Example_Workflow_Backend extends Abstract_Workflow_Backend
         echo "Workflow: Returning allowed statuses<br />\n";
         $statuses = Status::getAssocStatusList($prj_id, false);
         unset($statuses[4], $statuses[3]);
-       // you should perform any logic and remove any statuses you need to here.
-       return $statuses;
+        // you should perform any logic and remove any statuses you need to here.
+        return $statuses;
     }
 
     /**
@@ -207,7 +216,7 @@ class Example_Workflow_Backend extends Abstract_Workflow_Backend
     public function handleIssueClosed($prj_id, $issue_id, $send_notification, $resolution_id, $status_id, $reason, $usr_id)
     {
         $sql = "UPDATE
-                    {{%issue}}
+                    `issue`
                 SET
                     iss_percent_complete = '100%'
                 WHERE

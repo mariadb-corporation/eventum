@@ -20,11 +20,8 @@ namespace Eventum\Test;
  * Load PHPUnit_Framework_TestCase wrapper if using older PHPUnit.
  */
 
+use Eventum\Db\Doctrine;
 use Eventum\Extension\ExtensionManager;
-
-if (!class_exists('\PHPUnit\Framework\TestCase')) {
-    require_once __DIR__ . '/phpunit-compat.php';
-}
 
 class TestCase extends \PHPUnit\Framework\TestCase
 {
@@ -51,6 +48,14 @@ class TestCase extends \PHPUnit\Framework\TestCase
         return $stub;
     }
 
+    protected function getDataFile($fileName)
+    {
+        $dataFile = dirname(__DIR__) . '/data/' . $fileName;
+        $this->assertFileExists($dataFile);
+
+        return $dataFile;
+    }
+
     /**
      * Read file from tests/data directory.
      *
@@ -59,9 +64,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected function readDataFile($filename)
     {
-        $file = __DIR__ . '/../data/' . $filename;
-
-        return $this->readFile($file);
+        return $this->readFile($this->getDataFile($filename));
     }
 
     /**
@@ -75,5 +78,10 @@ class TestCase extends \PHPUnit\Framework\TestCase
         $this->assertNotEmpty($content);
 
         return $content;
+    }
+
+    protected function getEntityManager()
+    {
+        return Doctrine::getEntityManager();
     }
 }

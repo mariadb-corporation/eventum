@@ -12,11 +12,6 @@ function validateForm()
       alert('{t escape=js}Please enter the title of this project.{/t}');
       return false;
   }
-  if (!Validation.hasOneSelected('users[]')) {
-      Validation.selectField('users[]');
-      alert('{t escape=js}Please assign the users for this project.{/t}');
-      return false;
-  }
   if (!Validation.hasOneSelected('statuses[]')) {
       Validation.selectField('statuses[]');
       alert('{t escape=js}Please assign the statuses for this project.{/t}');
@@ -52,16 +47,8 @@ function validateForm()
   return true;
 }
 
-function checkLeadSelection()
-{
-    Eventum.selectOption('users[]', $('select[name=lead_usr_id]').val());
-}
-
 $().ready(function() {
     $('.select_all').click(function() { Eventum.toggleCheckAll('item[]'); });
-    $('select[name=lead_usr_id]').change(checkLeadSelection);
-    checkLeadSelection();
-
     $('#project_form').submit(validateForm);
 });
 //-->
@@ -127,20 +114,9 @@ $().ready(function() {
           {t}Project Lead{/t}: *
         </th>
         <td width="80%">
-          <select name="lead_usr_id">
+          <select name="lead_usr_id" class="chosen-select">
             {html_options options=$user_options selected=$info.prj_lead_usr_id|default:''}
           </select>
-        </td>
-      </tr>
-      <tr>
-        <th width="120">
-          {t}Users{/t} *
-        </th>
-        <td width="80%">
-          <select name="users[]" multiple size="3">
-            {html_options options=$user_options selected=$info.prj_assigned_users|default:''}
-          </select>
-          {include file="error_icon.tpl.html" field="users[]"}
         </td>
       </tr>
       <tr>
@@ -148,7 +124,7 @@ $().ready(function() {
           {t}Statuses{/t} *
         </th>
         <td width="80%">
-          <select name="statuses[]" multiple size="3">
+          <select name="statuses[]" multiple size="3" class="chosen-select">
             {html_options options=$status_options selected=$info.assigned_statuses|default:''}
           </select>
           {include file="error_icon.tpl.html" field="statuses[]"}
@@ -159,7 +135,7 @@ $().ready(function() {
           {t}Initial Status for New Issues{/t} *
         </th>
         <td width="80%">
-          <select name="initial_status">
+          <select name="initial_status" class="chosen-select">
             {html_options options=$status_options selected=$info.prj_initial_sta_id|default:''}
           </select>
           {include file="error_icon.tpl.html" field="initial_status"}

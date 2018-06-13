@@ -11,6 +11,8 @@
  * that were distributed with this source code.
  */
 
+use cebe\markdown\GithubMarkdown;
+use Eventum\Attachment\AttachmentManager;
 use Eventum\Db\Adapter\AdapterInterface;
 use Eventum\Db\DatabaseException;
 
@@ -34,7 +36,7 @@ class Link_Filter
                     lfi_pattern,
                     lfi_replacement
                 FROM
-                    {{%link_filter}}
+                    `link_filter`
                 WHERE
                     lfi_id = ?';
         try {
@@ -47,7 +49,7 @@ class Link_Filter
             $sql = 'SELECT
                         plf_prj_id
                     FROM
-                        {{%project_link_filter}}
+                        `project_link_filter`
                     WHERE
                         plf_lfi_id = ?';
             try {
@@ -79,7 +81,7 @@ class Link_Filter
                     lfi_pattern,
                     lfi_replacement
                 FROM
-                    {{%link_filter}}
+                    `link_filter`
                 ORDER BY
                     lfi_id';
         try {
@@ -93,8 +95,8 @@ class Link_Filter
                         plf_prj_id,
                         prj_title
                     FROM
-                        {{%project_link_filter}},
-                        {{%project}}
+                        `project_link_filter`,
+                        `project`
                     WHERE
                         prj_id = plf_prj_id AND
                         plf_lfi_id = ?';
@@ -122,7 +124,7 @@ class Link_Filter
     public static function insert()
     {
         $sql = 'INSERT INTO
-                    {{%link_filter}}
+                    `link_filter`
                 (
                     lfi_pattern,
                     lfi_replacement,
@@ -141,7 +143,7 @@ class Link_Filter
         $lfi_id = DB_Helper::get_last_insert_id();
         foreach ($_REQUEST['projects'] as $prj_id) {
             $sql = 'INSERT INTO
-                        {{%project_link_filter}}
+                        `project_link_filter`
                     (
                         plf_prj_id,
                         plf_lfi_id
@@ -169,7 +171,7 @@ class Link_Filter
         $itemlist = DB_Helper::buildList($items);
 
         $sql = "DELETE FROM
-                    {{%link_filter}}
+                    `link_filter`
                 WHERE
                     lfi_id IN ($itemlist)";
         try {
@@ -179,7 +181,7 @@ class Link_Filter
         }
 
         $sql = "DELETE FROM
-                    {{%project_link_filter}}
+                    `project_link_filter`
                 WHERE
                     plf_lfi_id IN ($itemlist)";
         try {
@@ -199,7 +201,7 @@ class Link_Filter
     public static function update()
     {
         $sql = 'UPDATE
-                    {{%link_filter}}
+                    `link_filter`
                 SET
                     lfi_pattern = ?,
                     lfi_replacement = ?,
@@ -220,7 +222,7 @@ class Link_Filter
         }
 
         $sql = 'DELETE FROM
-                    {{%project_link_filter}}
+                    `project_link_filter`
                 WHERE
                     plf_lfi_id = ?';
         try {
@@ -231,7 +233,7 @@ class Link_Filter
 
         foreach ($_REQUEST['projects'] as $prj_id) {
             $sql = 'INSERT INTO
-                        {{%project_link_filter}}
+                        `project_link_filter`
                     (
                         plf_prj_id,
                         plf_lfi_id
@@ -249,6 +251,24 @@ class Link_Filter
     }
 
     /**
+     * @param string $text
+     * @return string
+     */
+    public static function markdownFormat($text)
+    {
+        static $parser;
+
+        if (!$parser) {
+            $parser = new GithubMarkdown();
+            $parser->enableNewlines = true;
+        }
+
+        $text = $parser->parseParagraph($text);
+
+        return $text;
+    }
+
+    /**
      * Processes text through all link filters.
      *
      * @param   int $prj_id The ID of the project
@@ -259,10 +279,15 @@ class Link_Filter
     public static function processText($prj_id, $text, $class = 'link')
     {
         // process issue link separatly since it has to do something special
-        $text = Misc::activateLinks($text, $class);
+        if (!self::markdownEnabled()) {
+            // conflicts with markdown
+            $text = Misc::activateLinks($text, $class);
+        }
 
-        $filters = array_merge(self::getFilters(), self::getFiltersByProject($prj_id), Workflow::getLinkFilters($prj_id));
-        foreach ((array) $filters as $filter) {
+        $filters = array_merge(
+            self::getFilters(), self::getFiltersByProject($prj_id), Workflow::getLinkFilters($prj_id)
+        );
+        foreach ($filters as $filter) {
             list($pattern, $replacement) = $filter;
             // replacement may be a callback, provided by workflow
             if (is_callable($replacement)) {
@@ -270,6 +295,11 @@ class Link_Filter
             } else {
                 $text = preg_replace($pattern, $replacement, $text);
             }
+        }
+
+        // enable markdown
+        if (self::markdownEnabled()) {
+            $text = self::markdownFormat($text);
         }
 
         return $text;
@@ -287,6 +317,24 @@ class Link_Filter
     }
 
     /**
+     * @param string $text
+     * @param int $issue_id
+     * @return string
+     */
+    public static function textFormat($text, $issue_id)
+    {
+        if (!self::markdownEnabled()) {
+            // this used to be in Issue::getDetails
+            $text = nl2br(htmlspecialchars($text));
+        }
+
+        $text = self::activateLinks($text);
+        $text = self::activateAttachmentLinks($text, $issue_id);
+
+        return $text;
+    }
+
+    /**
      * Callback function to be used from template class.
      *
      * @param   string $text The text to process
@@ -298,7 +346,7 @@ class Link_Filter
         // build list of files to replace, so duplicate matches will always
         // take last matching filename.
         $files = [];
-        foreach (Attachment::getList($issue_id) as $attachment) {
+        foreach (AttachmentManager::getList($issue_id) as $attachment) {
             foreach ($attachment['files'] as $file) {
                 // TRANSLATORS: %1: iaf_filename, %2: iaf_filesize
                 $title = ev_gettext('download file (%1$s - %2$s)', $file['iaf_filename'], $file['iaf_filesize']);
@@ -355,8 +403,8 @@ class Link_Filter
                     CONCAT('/', lfi_pattern, '/i'),
                     lfi_replacement
                 FROM
-                    {{%link_filter}},
-                    {{%project_link_filter}}
+                    `link_filter`,
+                    `project_link_filter`
                 WHERE
                     lfi_id = plf_lfi_id AND
                     lfi_usr_role < ? AND
@@ -398,5 +446,30 @@ class Link_Filter
         $match = isset($matches['match']) ? $matches['match'] : "issue {$issue_id}";
 
         return "<a title=\"{$link_title}\" class=\"{$class}\" href=\"view.php?id={$matches['issue_id']}\">{$match}</a>";
+    }
+
+    /**
+     * Whether markdown renderer enabled.
+     * Can be enabled from setup/preferences as experiment.
+     *
+     * @param bool $value force value. internal for testing
+     * @return bool
+     */
+    public static function markdownEnabled($value = null)
+    {
+        static $markdown;
+
+        $usr_id = Auth::getUserID() ?: APP_SYSTEM_USER_ID;
+
+        if (!isset($markdown[$usr_id])) {
+            if ($value === null) {
+                $prefs = Prefs::get($usr_id);
+                $value = $prefs['markdown'] == '1';
+            }
+
+            $markdown[$usr_id]['markdown'] = $value;
+        }
+
+        return $markdown[$usr_id]['markdown'];
     }
 }

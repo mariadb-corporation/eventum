@@ -56,11 +56,11 @@ class SwitchController extends BaseController
     private function getRedirectUrl()
     {
         $request = $this->getRequest();
-        $url = $request->headers->get('referer');
+        $url = $request->get('current_page');
 
         // if url is 'view.php', use 'list.php',
         // otherwise autoswitcher will switch back to the project where the issue was :)
-        if (!$url || stristr($url, 'view.php') !== false) {
+        if (!$url || stripos($url, 'view.php') !== false) {
             $url = APP_RELATIVE_URL . 'list.php';
         }
 

@@ -108,20 +108,16 @@ po_checkout() {
 	make -C $dir/localization touch-po
 }
 
-# setup $version and update APP_VERSION in globals.php
+# setup $version and update VERSION in AppInfo class
 update_version() {
-	version=$(awk -F"'" '/APP_VERSION/{print $4}' globals.php)
-
-	version=$(git describe --tags)
+	version=$(git describe --tags --abbrev=8 HEAD)
 	# trim 'v' prefix
 	version=${version#v}
 
-	sed -i -e "
-		/define('APP_VERSION'/ {
-			idefine('APP_VERSION', '$version');
-		    d
-
-		}" globals.php
+	sed -i -re "
+		/const VERSION/ {
+			s/'[^']+'/'$version'/
+		}" src/AppInfo.php
 }
 
 # clean trailing spaces/tabs
@@ -133,7 +129,6 @@ clean_whitespace() {
 composer_install() {
 	# this dir does not exist in git export, but referenced in composer.json
 	install -d tests/src
-	$quick && test -f ../composer.lock && cp ../composer.lock .
 
 	# first install with dev to get assets installed
 	$composer install --prefer-dist
@@ -225,7 +220,6 @@ clean_vendor() {
 
 	# not ready yet
 	rm src/Db/Adapter/YiiAdapter.php
-	rm src/Mail/ImapMessage.php
 	rm src/Mail/MailStorage.php
 }
 

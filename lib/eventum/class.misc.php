@@ -247,19 +247,23 @@ class Misc
     {
         $val = trim($val);
         $last = strtolower($val[strlen($val) - 1]);
+        $val = (float)$val;
         switch ($last) {
             // The 'G' modifier is available since PHP 5.1.0
             /** @noinspection PhpMissingBreakStatementInspection */
             case 'g':
                 $val *= 1024;
             /** @noinspection PhpMissingBreakStatementInspection */
+            // no break
             case 'm':
                 $val *= 1024;
+                // no break
             case 'k':
                 $val *= 1024;
         }
 
-        return $val;
+        // try to return int if it fits, otherwise float
+        return $val > PHP_INT_MAX ? $val : (int)$val;
     }
 
     /**
@@ -439,6 +443,12 @@ class Misc
      */
     public static function activateLinks($text, $class = 'link')
     {
+        // process issue link separatly since it has to do something special
+        if (Link_Filter::markdownEnabled()) {
+            // conflicts with markdown
+            return $text;
+        }
+
         $range = '[-\w+@=?.%/:&;~|,#\[\]]+';
         // FIXME: handle the base of email addresses surrounded by <>, i.e.
         // Bryan Alsdorf <bryan@askmonty.org>
@@ -513,7 +523,7 @@ class Misc
         }
         clearstatcache();
         if (!is_writable($file)) {
-            if (!stristr(PHP_OS, 'win')) {
+            if (stripos(PHP_OS, 'win') === false) {
                 // let's try to change the permissions ourselves
                 @chmod($file, 0755);
                 clearstatcache();
@@ -524,7 +534,7 @@ class Misc
                 return false;
             }
         }
-        if (stristr(PHP_OS, 'win')) {
+        if (stripos(PHP_OS, 'win') !== false) {
             // need to check whether we can really create files in this directory or not
             // since is_writable() is not trustworthy on windows platforms
             if (is_dir($file)) {
@@ -551,6 +561,10 @@ class Misc
      */
     public static function highlightQuotedReply($text)
     {
+        if (Link_Filter::markdownEnabled()) {
+            return $text;
+        }
+
         require_once APP_INC_PATH . '/smarty/modifier.highlight_quoted.php';
 
         return smarty_modifier_highlight_quoted($text);
@@ -733,6 +747,70 @@ class Misc
         $message = strtr($message, $replacements);
 
         return $message;
+    }
+
+    /**
+     * Method used to output the headers and the binary data for
+     * an attachment file.
+     *
+     * This method never returns to caller.
+     *
+     * @param   $data
+     * @param   $filename
+     * @param   $filetype
+     * @param   $filesize
+     * @param   bool $force_inline If the file should be forced to render in the browser
+     */
+    public static function outputDownload($data, $filename, $filesize, $filetype, $force_inline = false)
+    {
+        if ($force_inline == true) {
+            header('Content-Type: text/plain');
+
+            if (stripos($filetype, 'gzip') !== false) {
+                header('Content-Encoding: gzip');
+            }
+            header('Content-Disposition: inline; filename="' . urlencode($filename) . '"');
+            header('Content-Length: ' . $filesize);
+            echo $data;
+            exit;
+        }
+
+        if (empty($filetype)) {
+            $filetype = 'application/octet-stream';
+        }
+        if (empty($filename)) {
+            $filename = ev_gettext('Untitled');
+        }
+        $filename = rawurlencode($filename);
+        $disposition = self::getAttachmentDisposition($filetype);
+        header('Content-Type: ' . $filetype);
+        header("Content-Disposition: {$disposition}; filename=\"{$filename}\"; filename*=" . APP_CHARSET . "''{$filename}");
+        header("Content-Length: {$filesize}");
+        echo $data;
+        exit;
+    }
+
+    /**
+     * Returns how the download should be displayed.
+     *
+     * @param string $filetype
+     * @return string inline|attachment
+     */
+    public static function getAttachmentDisposition($filetype)
+    {
+        $parts = explode('/', $filetype, 2);
+        if (count($parts) < 2) {
+            return 'attachment';
+        }
+
+        list($type) = $parts;
+
+        // display inline images and text documents
+        if (in_array($type, ['image', 'text'])) {
+            return 'inline';
+        }
+
+        return 'attachment';
     }
 
 
