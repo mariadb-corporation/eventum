@@ -1071,6 +1071,12 @@ class Notification
                 $full_subject = ev_gettext('[#%1$s] %2$s: %3$s', $issue_id, $subject, $data['iss_summary']);
             }
 
+
+            // MARIADB-CSTM: Put customer name in subject
+            if ($type == 'new_issue') {
+                $full_subject = "[#{$issue_id}][{$data['customer']['name']}] New Issue: {$data['iss_summary']}";
+            }
+
             if ($notify_type == 'notes' && $sender) {
                 $from = self::getFixedFromHeader($issue_id, $sender, 'note');
             } else {
