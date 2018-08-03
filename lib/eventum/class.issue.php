@@ -1335,6 +1335,9 @@ class Issue
         if (isset($_POST['scheduled_release']) && $current['iss_pre_id'] != $_POST['scheduled_release']) {
             $updated_fields['Scheduled Release'] = History::formatChanges(Release::getTitle($current['iss_pre_id']), Release::getTitle($_POST['scheduled_release']));
         }
+        if (isset($_POST['trigger_reminders']) && $current['iss_trigger_reminders'] != $_POST['trigger_reminders']) {
+            $updated_fields['Trigger Reminders'] = History::formatChanges(Misc::getBooleanDisplayValue($current['iss_trigger_reminders']), Misc::getBooleanDisplayValue($_POST['trigger_reminders']));
+        }
         if (isset($_POST['status']) && $current['iss_sta_id'] != $_POST['status']) {
             // clear out the last-triggered-reminder flag when changing the status of an issue
             Reminder_Action::clearLastTriggered($issue_id);
