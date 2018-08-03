@@ -115,6 +115,12 @@ function replyAsEmail(el)
     {if $core.current_role > $core.roles.reporter}
     <div class="buttons">
       <input type="button" value="{t}Post Internal Note{/t}" onClick="postInternalNote({$smarty.get.id|intval});">
+        {* MARIADB-CSTM: Add mailto link *}
+        <div class="pull-right">
+            <a href="mailto:{$core.app_setup.note_routing.address_prefix}{$smarty.get.id|intval}@{$core.app_setup.note_routing.address_host}">
+                <input type="button" value="{t}Send Note through mail client{/t}">
+            </a>
+        </div>
     </div>
     {/if}
 </div>

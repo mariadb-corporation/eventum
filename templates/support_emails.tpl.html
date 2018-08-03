@@ -163,6 +163,15 @@
         <input type="submit" value="{t}Disassociate Selected{/t}">
     </div>
     {/if}
+    {if $core.current_role > $core.roles.customer}
+    <div class="right">
+        {* MARIADB-CSTM: Add mailto link *}
+        <a href="mailto:{$core.app_setup.email_routing.address_prefix}{$smarty.get.id|intval}@{$core.app_setup.email_routing.address_host}">
+            <input type="button" value="{t}Send Email through mail client{/t}">
+        </a>
+        &nbsp;
+    </div>
+    {/if}
 </div>
 {/if}
 </form>
