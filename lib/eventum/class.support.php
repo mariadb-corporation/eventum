@@ -1531,6 +1531,7 @@ class Support
                  WHERE
                     seb_sup_id=?';
         $full_email = DB_Helper::getInstance()->getOne($stmt, [$sup_id]);
+        echo $full_email;exit;
 
         return MailMessage::createFromString($full_email);
     }
