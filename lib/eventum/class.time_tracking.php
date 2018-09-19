@@ -488,7 +488,7 @@ class Time_Tracking
             return -1;
         }
 
-        Issue::markAsUpdated($iss_id, 'time added');
+//        Issue::markAsUpdated($iss_id, 'time added');
         History::add($iss_id, $usr_id, 'time_added', 'Time tracking entry submitted by {user}', [
             'user' => User::getFullName($usr_id),
         ]);
