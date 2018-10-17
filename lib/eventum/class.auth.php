@@ -396,7 +396,7 @@ class Auth
 
         if ($projects != null && !in_array($cookie['prj_id'], array_keys($projects))) {
             if ($redirect) {
-                self::redirect('select_project.php');
+                self::redirect(APP_RELATIVE_URL . 'select_project.php');
             } else {
                 return false;
             }
