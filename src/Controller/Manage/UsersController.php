@@ -76,6 +76,7 @@ class UsersController extends ManageBaseController
         try {
             $usr_id = User::insert($user);
         } catch (Exception $e) {
+            Logger::app()->error($e);
             $message = ev_gettext('An error occurred while trying to add the new user.');
             $this->messages->addErrorMessage($message);
 
