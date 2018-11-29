@@ -49,6 +49,7 @@ class Prefs
                 $prefs['receive_assigned_email'][$prj_id] = APP_DEFAULT_ASSIGNED_EMAILS;
                 $prefs['receive_new_issue_email'][$prj_id] = APP_DEFAULT_NEW_EMAILS;
                 $prefs['receive_copy_of_own_action'][$prj_id] = APP_DEFAULT_COPY_OF_OWN_ACTION;
+                $prefs['add_to_notification_list_new_issue'][$prj_id] = false;
             }
         }
 
@@ -97,6 +98,7 @@ class Prefs
         $returns[$usr_id]['receive_assigned_email'] = [];
         $returns[$usr_id]['receive_new_issue_email'] = [];
         $returns[$usr_id]['receive_copy_of_own_action'] = [];
+        $returns[$usr_id]['add_to_notification_list_new_issue'] = []; // MARIADB-CSTM
 
         // check for the refresh rate variables, and use the default values if appropriate
         if (empty($returns[$usr_id]['list_refresh_rate'])) {
@@ -111,7 +113,8 @@ class Prefs
                     upp_prj_id as prj_id,
                     upp_receive_assigned_email as receive_assigned_email,
                     upp_receive_new_issue_email as receive_new_issue_email,
-                    upp_receive_copy_of_own_action as receive_copy_of_own_action
+                    upp_receive_copy_of_own_action as receive_copy_of_own_action,
+                    upp_add_to_notification_list_new_issue as add_to_notification_list_new_issue
                 FROM
                     `user_project_preference`
                 WHERE
@@ -120,9 +123,10 @@ class Prefs
         $res = DB_Helper::getInstance()->fetchAssoc($sql, [$usr_id], AdapterInterface::DB_FETCHMODE_ASSOC);
 
         foreach ($res as $prj_id => $project_prefs) {
-            $returns[$usr_id]['receive_assigned_email'][$prj_id] = $project_prefs['receive_assigned_email'];
-            $returns[$usr_id]['receive_new_issue_email'][$prj_id] = $project_prefs['receive_new_issue_email'];
-            $returns[$usr_id]['receive_copy_of_own_action'][$prj_id] = $project_prefs['receive_copy_of_own_action'];
+            $returns[$usr_id]['receive_assigned_email'][$prj_id] = @$project_prefs['receive_assigned_email'];
+            $returns[$usr_id]['receive_new_issue_email'][$prj_id] = @$project_prefs['receive_new_issue_email'];
+            $returns[$usr_id]['receive_copy_of_own_action'][$prj_id] = @$project_prefs['receive_copy_of_own_action'];
+            $returns[$usr_id]['add_to_notification_list_new_issue'][$prj_id] = @$project_prefs['add_to_notification_list_new_issue'];
         }
 
         return $returns[$usr_id];
@@ -180,14 +184,16 @@ class Prefs
                         upp_prj_id = ?,
                         upp_receive_assigned_email = ?,
                         upp_receive_new_issue_email = ?,
-                        upp_receive_copy_of_own_action = ?';
+                        upp_receive_copy_of_own_action = ?,
+                        upp_add_to_notification_list_new_issue = ?';
 
             DB_Helper::getInstance()->query($sql, [
                 $usr_id,
                 $prj_id,
-                $preferences['receive_assigned_email'][$prj_id],
-                $preferences['receive_new_issue_email'][$prj_id],
-                $preferences['receive_copy_of_own_action'][$prj_id],
+                @$preferences['receive_assigned_email'][$prj_id],
+                @$preferences['receive_new_issue_email'][$prj_id],
+                @$preferences['receive_copy_of_own_action'][$prj_id],
+                @$preferences['add_to_notification_list_new_issue'][$prj_id],
             ]);
         }
 

@@ -2012,10 +2012,28 @@ class Issue
             if (@!in_array($contact_email, $recipients)) {
                 $contact->notifyNewIssue($issue_id);
             }
+            // MARIADB-CSTM: Send email to any contacts who have requested it
+            foreach ($contract->getContacts() as $contact) {
+                $contact_email = $contact->getEmail();
+                $usr_id = User::getUserIDByEmail($contact_email, true);
+                if ($usr_id) {
+                    $user_preferences = Prefs::get($usr_id);
+                    if (@$user_preferences['receive_new_issue_email'][$prj_id] == 1) {
+                        $contact->notifyNewIssue($issue_id);
+                        $recipients[] = $contact->getEmail();
+                    }
+                    if (@$user_preferences['add_to_notification_list_new_issue'][$prj_id] == 1) {
+                        $actions = Notification::getDefaultActions($issue_id, $contact_email, 'new_issue');
+                        Notification::subscribeUser(APP_SYSTEM_USER_ID, $issue_id, $usr_id, $actions);
+                    }
+
+                }
+            }
             // now check for additional emails in contact_extra_emails
             if (@count($data['contact_extra_emails']) > 0) {
                 $notification_emails = $data['contact_extra_emails'];
                 foreach ($notification_emails as $notification_email) {
+                    $notification_email = Mail_Helper::getEmailAddress($notification_email);
                     if (@!in_array($notification_email, $recipients)) {
                         try {
                             $notification_contact = $crm->getContactByEmail($notification_email);
