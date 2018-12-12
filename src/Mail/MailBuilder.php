@@ -15,6 +15,7 @@ namespace Eventum\Mail;
 
 use Eventum\Attachment\Attachment;
 use Eventum\Mail\Helper\MimePart;
+use Mime_Helper;
 use Zend\Mail;
 use Zend\Mime;
 
@@ -71,7 +72,7 @@ class MailBuilder
         $part = MimePart::createAttachmentPart(
             $attachment->getFileContents(),
             $attachment->filetype,
-            $attachment->filename
+            Mime_Helper::encode($attachment->filename)
         );
         $this->mime->addPart($part);
 
