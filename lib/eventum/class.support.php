@@ -1761,8 +1761,17 @@ class Support
         }
 
         if ($iaf_ids) {
+            $total_attachment_size = 0;
             foreach ($iaf_ids as $iaf_id) {
                 $attachment = AttachmentManager::getAttachment($iaf_id);
+                $total_attachment_size += $attachment->filesize;
+
+                // MARIADB-CSTM: Remove email attachments over specified size
+                if ($total_attachment_size > MARIADB_MAX_EMAIL_ATTACHMENT_SIZE) {
+                    $builder->addTextPart("Due to size limits, some attachments were not included in this email. Please visit " .
+                        APP_BASE_URL . "view.php?id=" . $issue_id . " to view.");
+                    break;
+                }
                 $builder->addAttachment($attachment);
             }
         }
