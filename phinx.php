@@ -61,7 +61,7 @@ return [
             // Specify MySQL storage engine
             // if not specified mysql server default will be used
             // Examples: 'MyISAM', 'InnoDB'
-            'engine' => 'MyISAM',
+            'engine' => 'InnoDB',
 
             // charset and collation must be utf8 compatible
 

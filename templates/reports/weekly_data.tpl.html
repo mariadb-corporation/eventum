@@ -69,6 +69,7 @@ $smarty.request.show_status == 1} ({$data.issues.no_time[issue].sta_title}){/if}
 
 {t}Login Time Spent{/t}:     {if $data.time_tracking.Login_Work.formatted_time|default:'' == ''}00h 00m{else}{$data.time_tracking.Login_Work.formatted_time}{/if}
 
+{t}Clocked In Time Spent{/t}:     {$data.clocked_in_time}
 
 {t}Total Time Spent{/t}:     {$data.total_time}
 

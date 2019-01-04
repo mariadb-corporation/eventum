@@ -397,6 +397,9 @@ class Report
             usort($issues['other'], $sort_function);
         }
 
+        // Get a summary of clocked in time for the week
+        $clocked_in_time = User::getWeeklyClockedInTime($usr_id, $start_ts, $end_ts);
+
         return [
             'start' => $start_ts,
             'end' => $end_ts,
@@ -409,6 +412,7 @@ class Report
             'phone_count' => Phone_Support::getCountByUser($usr_id, $start_ts, $end_ts),
             'note_count' => Note::getCountByUser($usr_id, $start_ts, $end_ts),
             'total_time' => Misc::getFormattedTime($total_time, false),
+            'clocked_in_time' => Misc::getFormattedTime($clocked_in_time, false),
         ];
     }
 

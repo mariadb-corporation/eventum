@@ -1395,6 +1395,21 @@ class User
             return -1;
         }
 
+        // Track this clock-in
+        $stmt = 'INSERT INTO
+                    `user_clock_tracking`
+                 (
+                    uct_usr_id,
+                    uct_clocked_in
+                 ) VALUES (
+                    ?, ?
+                 )';
+        try {
+            DB_Helper::getInstance()->query($stmt, [$usr_id, Date_Helper::getCurrentDateGMT()]);
+        } catch (DatabaseException $e) {
+            return -1;
+        }
+
         return 1;
     }
 
@@ -1414,6 +1429,43 @@ class User
                     usr_id = ?';
         try {
             DB_Helper::getInstance()->query($stmt, [$usr_id]);
+        } catch (DatabaseException $e) {
+            return -1;
+        }
+
+        // Auto set the clocked-in minutes
+        $stmt = 'SELECT
+                    uct_clocked_in
+                 FROM
+                    `user_clock_tracking`
+                 WHERE
+                    uct_usr_id = ?
+                 AND
+                    uct_clocked_out IS NULL';
+
+        // Diff the time the user was clocked in
+        $clocked_in_at = DB_Helper::getInstance()->getOne($stmt, [$usr_id]);
+        $clocked_in_at = new DateTime($clocked_in_at);
+        $clocked_out_at = Date_Helper::getCurrentDateGMT();
+        $total_time = $clocked_in_at->diff(new DateTime($clocked_out_at));
+
+        // Calculate total minutes worked:
+        $minutes = $total_time->days * 24 * 60;
+        $minutes += $total_time->h * 60;
+        $minutes += $total_time->i + 1;
+
+        // Track this clock out
+        $stmt = 'UPDATE
+                    `user_clock_tracking`
+                 SET
+                    uct_clocked_out = ?,
+                    uct_time_spent = ?
+                 WHERE
+                    uct_usr_id = ?
+                 AND
+                    uct_clocked_out IS NULL';
+        try {
+            DB_Helper::getInstance()->query($stmt, [$clocked_out_at, $minutes, $usr_id]);
         } catch (DatabaseException $e) {
             return -1;
         }
@@ -1451,6 +1503,25 @@ class User
         }
 
         return false;
+    }
+
+    public static function getWeeklyClockedInTime($usr_id, $start, $end)
+    {
+        $stmt = 'SELECT
+                    SUM(uct_time_spent) as total_time
+                 FROM
+                    `user_clock_tracking`
+                 WHERE
+                    uct_usr_id = ? AND
+                    uct_clocked_out >= ? AND
+                    uct_clocked_in <= ?';
+        try {
+            $res = DB_Helper::getInstance()->getOne($stmt, [$usr_id, $start, $end]);
+        } catch (DatabaseException $e) {
+            return 0;
+        }
+        
+        return $res;
     }
 
     public static function getLang($usr_id, $force_refresh = false)

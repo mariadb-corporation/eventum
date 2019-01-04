@@ -1,0 +1,138 @@
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139891583919872 [Note] /usr/sbin/mysqld: Shutdown complete
+Nov 16 13:12:23 ip-10-22-32-88 systemd: Starting MariaDB 10.2.14 database server...
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] /usr/sbin/mysqld (mysqld 10.2.14-MariaDB) starting as process 24991 ...
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: Mutexes and rw_locks use GCC atomic builtins
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: Uses event mutexes
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: Compressed tables use zlib 1.2.7
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: Using Linux native AIO
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: Number of pools: 1
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: Using SSE2 crc32 instructions
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: Initializing buffer pool, total size = 128M, instances = 1, chunk size = 128M
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: Completed initialization of buffer pool
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139662308701952 [Note] InnoDB: If the mysqld execution user is authorized, page cleaner thread priority can be changed. See the man page of setpriority().
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: Highest supported file format is Barracuda.
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: 128 out of 128 rollback segments are active.
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: Creating shared tablespace for temporary tables
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: Waiting for purge to start
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: 5.7.21 started; log sequence number 1666371221
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: Creating #1 encryption thread id 139661724870400 total threads 4.
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: Creating #2 encryption thread id 139661716477696 total threads 4.
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: Creating #3 encryption thread id 139661708084992 total threads 4.
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] InnoDB: Creating #4 encryption thread id 139661699692288 total threads 4.
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139661733263104 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] Plugin 'FEEDBACK' is disabled.
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 181116 13:12:23 server_audit: MariaDB Audit Plugin version 1.4.3 STARTED.
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 181116 13:12:23 server_audit: logging started to the file /var/lib/mysql/audit.log.
+Nov 16 13:12:23 ip-10-22-32-88 mysqld: 2018-11-16 13:12:23 139663077861568 [Note] Server socket created on IP: '0.0.0.0'.
+Nov 16 13:12:24 ip-10-22-32-88 mysqld: 2018-11-16 13:12:24 139661733263104 [Note] InnoDB: Buffer pool(s) load completed at 181116 13:12:24
+Nov 16 13:12:24 ip-10-22-32-88 mysqld: 2018-11-16 13:12:24 139663077861568 [Note] Reading of all Master_info entries succeded
+Nov 16 13:12:24 ip-10-22-32-88 mysqld: 2018-11-16 13:12:24 139663077861568 [Note] Added new Master_info '' to hash table
+Nov 16 13:12:24 ip-10-22-32-88 mysqld: 2018-11-16 13:12:24 139663077861568 [Note] /usr/sbin/mysqld: ready for connections.
+Nov 16 13:12:24 ip-10-22-32-88 mysqld: Version: '10.2.14-MariaDB'  socket: '/var/lib/mysql/mysql.sock'  port: 3306  MariaDB Server
+Nov 16 13:12:24 ip-10-22-32-88 systemd: Started MariaDB 10.2.14 database server.
+Nov 16 13:13:24 ip-10-22-32-88 systemd-logind: Removed session 5766.
+Nov 16 13:13:24 ip-10-22-32-88 systemd: Removed slice User Slice of ec2-user.
+Nov 16 13:13:24 ip-10-22-32-88 systemd: Stopping User Slice of ec2-user.
+Nov 16 13:17:21 ip-10-22-32-88 mysqld: 2018-11-16 13:17:21 139662606333696 [Warning] Hostname 'f100147587.ad.faa.gov' does not resolve to '10.71.143.66'.
+Nov 16 13:17:21 ip-10-22-32-88 mysqld: 2018-11-16 13:17:21 139662606333696 [Note] Hostname 'f100147587.ad.faa.gov' has the following IP addresses:
+Nov 16 13:17:21 ip-10-22-32-88 mysqld: 2018-11-16 13:17:21 139662606333696 [Note]  - 10.71.165.134
+Nov 16 13:18:55 ip-10-22-32-88 mysqld: 2018-11-16 13:18:55 139662606333696 [Warning] Access denied for user 'glenn_sprinkle'@'10.71.143.66' (using password: YES)
+Nov 16 13:18:59 ip-10-22-32-88 mysqld: 2018-11-16 13:18:59 139662606333696 [Warning] IP address '10.22.32.95' could not be resolved: Name or service not known
+Nov 16 13:20:01 ip-10-22-32-88 systemd: Created slice User Slice of root.
+Nov 16 13:20:01 ip-10-22-32-88 systemd: Starting User Slice of root.
+Nov 16 13:20:01 ip-10-22-32-88 systemd: Started Session 5767 of user root.
+Nov 16 13:20:01 ip-10-22-32-88 systemd: Starting Session 5767 of user root.
+Nov 16 13:20:01 ip-10-22-32-88 systemd: Removed slice User Slice of root.
+Nov 16 13:20:01 ip-10-22-32-88 systemd: Stopping User Slice of root.
+Nov 16 13:20:48 ip-10-22-32-88 su: (to root) glenn_sprinkle on pts/0
+Nov 16 13:26:00 ip-10-22-32-88 mysqld: 2018-11-16 13:26:00 139662606333696 [Warning] Aborted connection 14 to db: 'QUASARDev' user: 'quasarapp' host: 'f001172857.ad.faa.gov' (Got an error reading communication packets)
+Nov 16 13:26:28 ip-10-22-32-88 mysqld: 2018-11-16 13:26:28 139662606333696 [Warning] Access denied for user 'quasarapp'@'f001172857.ad.faa.gov' (using password: YES)
+Nov 16 13:27:52 ip-10-22-32-88 mysqld: 2018-11-16 13:27:52 139662606333696 [Warning] Access denied for user 'quasaradmin'@'f001172857.ad.faa.gov' (using password: YES)
+Nov 16 13:28:56 ip-10-22-32-88 dhclient[690]: DHCPREQUEST on eth0 to 10.22.32.1 port 67 (xid=0x66b97f4b)
+Nov 16 13:28:56 ip-10-22-32-88 dhclient[690]: DHCPACK from 10.22.32.1 (xid=0x66b97f4b)
+Nov 16 13:28:56 ip-10-22-32-88 NetworkManager[625]: <info>  [1542396536.5032] dhcp4 (eth0):   address 10.22.32.88
+Nov 16 13:28:56 ip-10-22-32-88 NetworkManager[625]: <info>  [1542396536.5035] dhcp4 (eth0):   plen 24 (255.255.255.0)
+Nov 16 13:28:56 ip-10-22-32-88 NetworkManager[625]: <info>  [1542396536.5035] dhcp4 (eth0):   gateway 10.22.32.1
+Nov 16 13:28:56 ip-10-22-32-88 NetworkManager[625]: <info>  [1542396536.5036] dhcp4 (eth0):   lease time 3600
+Nov 16 13:28:56 ip-10-22-32-88 NetworkManager[625]: <info>  [1542396536.5036] dhcp4 (eth0):   hostname 'ip-10-22-32-88'
+Nov 16 13:28:56 ip-10-22-32-88 NetworkManager[625]: <info>  [1542396536.5036] dhcp4 (eth0):   nameserver '10.21.2.12'
+Nov 16 13:28:56 ip-10-22-32-88 NetworkManager[625]: <info>  [1542396536.5036] dhcp4 (eth0):   nameserver '10.21.0.12'
+Nov 16 13:28:56 ip-10-22-32-88 NetworkManager[625]: <info>  [1542396536.5036] dhcp4 (eth0):   nameserver '10.23.2.12'
+Nov 16 13:28:56 ip-10-22-32-88 NetworkManager[625]: <info>  [1542396536.5036] dhcp4 (eth0):   domain name 'fcs.faa.gov'
+Nov 16 13:28:56 ip-10-22-32-88 NetworkManager[625]: <info>  [1542396536.5036] dhcp4 (eth0): state changed bound -> bound
+Nov 16 13:28:56 ip-10-22-32-88 dbus[483]: [system] Activating via systemd: service name='org.freedesktop.nm_dispatcher' unit='dbus-org.freedesktop.nm-dispatcher.service'
+Nov 16 13:28:56 ip-10-22-32-88 systemd: Starting Network Manager Script Dispatcher Service...
+Nov 16 13:28:56 ip-10-22-32-88 dhclient[690]: bound to 10.22.32.88 -- renewal in 1528 seconds.
+Nov 16 13:28:56 ip-10-22-32-88 dbus[483]: [system] Successfully activated service 'org.freedesktop.nm_dispatcher'
+Nov 16 13:28:56 ip-10-22-32-88 systemd: Started Network Manager Script Dispatcher Service.
+Nov 16 13:28:56 ip-10-22-32-88 nm-dispatcher: req:1 'dhcp4-change' [eth0]: new request (4 scripts)
+Nov 16 13:28:56 ip-10-22-32-88 nm-dispatcher: req:1 'dhcp4-change' [eth0]: start running ordered scripts...
+Nov 16 13:30:01 ip-10-22-32-88 systemd: Created slice User Slice of root.
+Nov 16 13:30:01 ip-10-22-32-88 systemd: Starting User Slice of root.
+Nov 16 13:30:01 ip-10-22-32-88 systemd: Started Session 5768 of user root.
+Nov 16 13:30:01 ip-10-22-32-88 systemd: Starting Session 5768 of user root.
+Nov 16 13:30:01 ip-10-22-32-88 systemd: Removed slice User Slice of root.
+Nov 16 13:30:01 ip-10-22-32-88 systemd: Stopping User Slice of root.
+Nov 16 13:32:22 ip-10-22-32-88 systemd-logind: Removed session 5757.
+Nov 16 13:32:22 ip-10-22-32-88 systemd: Removed slice User Slice of glenn_sprinkle.
+Nov 16 13:32:22 ip-10-22-32-88 systemd: Stopping User Slice of glenn_sprinkle.
+Nov 16 13:36:56 ip-10-22-32-88 mysqld: 2018-11-16 13:36:56 139662270887680 [Warning] Access denied for user 'quasaradmin'@'10.71.143.66' (using password: YES)
+Nov 16 13:37:14 ip-10-22-32-88 mysqld: 2018-11-16 13:37:14 139662270887680 [Warning] Access denied for user 'glenn_sprinkle'@'10.71.143.66' (using password: YES)
+Nov 16 13:37:38 ip-10-22-32-88 sshd[26344]: rexec line 67: Deprecated option RhostsRSAAuthentication
+Nov 16 13:37:49 ip-10-22-32-88 systemd: Created slice User Slice of glenn_sprinkle.
+Nov 16 13:37:49 ip-10-22-32-88 systemd: Starting User Slice of glenn_sprinkle.
+Nov 16 13:37:49 ip-10-22-32-88 systemd: Started Session 5769 of user glenn_sprinkle.
+Nov 16 13:37:49 ip-10-22-32-88 systemd-logind: New session 5769 of user glenn_sprinkle.
+Nov 16 13:37:49 ip-10-22-32-88 systemd: Starting Session 5769 of user glenn_sprinkle.
+Nov 16 13:38:05 ip-10-22-32-88 su: (to root) glenn_sprinkle on pts/0
+Nov 16 13:38:46 ip-10-22-32-88 mysqld: 2018-11-16 13:38:46 139662270887680 [Warning] Access denied for user 'dba'@'f001172857.ad.faa.gov' (using password: YES)
+Nov 16 13:39:01 ip-10-22-32-88 mysqld: 2018-11-16 13:39:01 139662270887680 [Warning] Access denied for user 'quasaradmin'@'f001172857.ad.faa.gov' (using password: YES)
+Nov 16 13:40:01 ip-10-22-32-88 systemd: Created slice User Slice of root.
+Nov 16 13:40:01 ip-10-22-32-88 systemd: Starting User Slice of root.
+Nov 16 13:40:01 ip-10-22-32-88 systemd: Started Session 5770 of user root.
+Nov 16 13:40:01 ip-10-22-32-88 systemd: Starting Session 5770 of user root.
+Nov 16 13:40:01 ip-10-22-32-88 systemd: Removed slice User Slice of root.
+Nov 16 13:40:01 ip-10-22-32-88 systemd: Stopping User Slice of root.
+Nov 16 13:42:28 ip-10-22-32-88 mysqld: 2018-11-16 13:42:28 139662270887680 [Warning] Access denied for user 'glenn_sprinkle'@'localhost' (using password: YES)
+Nov 16 13:47:38 ip-10-22-32-88 mysqld: 2018-11-16 13:47:38 139662606333696 [Warning] Access denied for user 'dba'@'f001172857.ad.faa.gov' (using password: YES)
+Nov 16 13:47:47 ip-10-22-32-88 mysqld: 2018-11-16 13:47:47 139662606333696 [Warning] Access denied for user 'quasaradmin'@'f001172857.ad.faa.gov' (using password: YES)
+Nov 16 13:50:01 ip-10-22-32-88 systemd: Created slice User Slice of root.
+Nov 16 13:50:01 ip-10-22-32-88 systemd: Starting User Slice of root.
+Nov 16 13:50:01 ip-10-22-32-88 systemd: Started Session 5771 of user root.
+Nov 16 13:50:01 ip-10-22-32-88 systemd: Starting Session 5771 of user root.
+Nov 16 13:50:01 ip-10-22-32-88 systemd: Removed slice User Slice of root.
+Nov 16 13:50:01 ip-10-22-32-88 systemd: Stopping User Slice of root.
+Nov 16 13:54:24 ip-10-22-32-88 dhclient[690]: DHCPREQUEST on eth0 to 10.22.32.1 port 67 (xid=0x66b97f4b)
+Nov 16 13:54:24 ip-10-22-32-88 dhclient[690]: DHCPACK from 10.22.32.1 (xid=0x66b97f4b)
+Nov 16 13:54:24 ip-10-22-32-88 NetworkManager[625]: <info>  [1542398064.7148] dhcp4 (eth0):   address 10.22.32.88
+Nov 16 13:54:24 ip-10-22-32-88 NetworkManager[625]: <info>  [1542398064.7150] dhcp4 (eth0):   plen 24 (255.255.255.0)
+Nov 16 13:54:24 ip-10-22-32-88 NetworkManager[625]: <info>  [1542398064.7150] dhcp4 (eth0):   gateway 10.22.32.1
+Nov 16 13:54:24 ip-10-22-32-88 NetworkManager[625]: <info>  [1542398064.7150] dhcp4 (eth0):   lease time 3600
+Nov 16 13:54:24 ip-10-22-32-88 NetworkManager[625]: <info>  [1542398064.7150] dhcp4 (eth0):   hostname 'ip-10-22-32-88'
+Nov 16 13:54:24 ip-10-22-32-88 NetworkManager[625]: <info>  [1542398064.7150] dhcp4 (eth0):   nameserver '10.21.2.12'
+Nov 16 13:54:24 ip-10-22-32-88 NetworkManager[625]: <info>  [1542398064.7150] dhcp4 (eth0):   nameserver '10.21.0.12'
+Nov 16 13:54:24 ip-10-22-32-88 NetworkManager[625]: <info>  [1542398064.7150] dhcp4 (eth0):   nameserver '10.23.2.12'
+Nov 16 13:54:24 ip-10-22-32-88 NetworkManager[625]: <info>  [1542398064.7150] dhcp4 (eth0):   domain name 'fcs.faa.gov'
+Nov 16 13:54:24 ip-10-22-32-88 NetworkManager[625]: <info>  [1542398064.7150] dhcp4 (eth0): state changed bound -> bound
+Nov 16 13:54:24 ip-10-22-32-88 systemd: Starting Network Manager Script Dispatcher Service...
+Nov 16 13:54:24 ip-10-22-32-88 dbus[483]: [system] Activating via systemd: service name='org.freedesktop.nm_dispatcher' unit='dbus-org.freedesktop.nm-dispatcher.service'
+Nov 16 13:54:24 ip-10-22-32-88 dhclient[690]: bound to 10.22.32.88 -- renewal in 1631 seconds.
+Nov 16 13:54:24 ip-10-22-32-88 dbus[483]: [system] Successfully activated service 'org.freedesktop.nm_dispatcher'
+Nov 16 13:54:24 ip-10-22-32-88 systemd: Started Network Manager Script Dispatcher Service.
+Nov 16 13:54:24 ip-10-22-32-88 nm-dispatcher: req:1 'dhcp4-change' [eth0]: new request (4 scripts)
+Nov 16 13:54:24 ip-10-22-32-88 nm-dispatcher: req:1 'dhcp4-change' [eth0]: start running ordered scripts...
+Nov 16 14:00:01 ip-10-22-32-88 systemd: Created slice User Slice of root.
+Nov 16 14:00:01 ip-10-22-32-88 systemd: Starting User Slice of root.
+Nov 16 14:00:01 ip-10-22-32-88 systemd: Started Session 5772 of user root.
+Nov 16 14:00:01 ip-10-22-32-88 systemd: Starting Session 5772 of user root.
+Nov 16 14:00:01 ip-10-22-32-88 systemd: Removed slice User Slice of root.
+Nov 16 14:00:01 ip-10-22-32-88 systemd: Stopping User Slice of root.
+Nov 16 14:01:01 ip-10-22-32-88 systemd: Created slice User Slice of root.
+Nov 16 14:01:01 ip-10-22-32-88 systemd: Starting User Slice of root.
+Nov 16 14:01:01 ip-10-22-32-88 systemd: Started Session 5773 of user root.
+Nov 16 14:01:01 ip-10-22-32-88 systemd: Starting Session 5773 of user root.
+Nov 16 14:01:01 ip-10-22-32-88 systemd: Removed slice User Slice of root.
+Nov 16 14:01:01 ip-10-22-32-88 systemd: Stopping User Slice of root.
+Nov 16 14:04:54 ip-10-22-32-88 systemd: Stopping MariaDB 10.2.14 database server...
