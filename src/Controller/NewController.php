@@ -252,6 +252,22 @@ class NewController extends BaseController
         } else {
             // take POST and GET data, so that POST data overrides
             $data = $request->request->all() + $request->query->all();
+
+            // MARIADB-CSTM: Defaults for source request
+            $source_request_enterprise_server_version = $request->query->get('enterprise_server_source_request',
+                false);
+            if ($source_request_enterprise_server_version) {
+                $data['severity'] = 4;
+                $data['summary'] = "Source code request for MariaDB Enterprise Server " . $source_request_enterprise_server_version;
+                $data['description'] = "Please provide the source code for MariaDB Enterprise Server " .
+                    $source_request_enterprise_server_version . "\n\nAdditional Comments or / Requests: \n\n";
+                $data['product_version'] = $source_request_enterprise_server_version;
+                $data['product'] = 18;
+                $data['custom_fields'][1] = "Other or N/A";
+                $data['custom_fields'][5] = "Source Request";
+                $data['custom_fields'][10] = "24";
+            }
+
             $this->tpl->assign('defaults', $data);
         }
     }
