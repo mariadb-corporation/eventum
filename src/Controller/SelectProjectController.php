@@ -98,6 +98,14 @@ class SelectProjectController extends BaseController
         // MARIADB-CSTM: Remove hidden projects
         $this->projects = \MariaDB_Helper::removeHiddenProjects($this->usr_id, $this->projects);
 
+        if (count($this->projects) == 0) {
+            AuthCookie::removeAuthCookie();
+            AuthCookie::removeProjectCookie();
+            $this->tpl->setTemplate(APP_LOCAL_PATH . "/crm/skysf/templates/no_current_contract.tpl.html");
+            $this->tpl->displayTemplate();
+            exit;
+        }
+
         // FIXME: why here? investigate deb5dbe6
         Language::setPreference();
 
