@@ -21,7 +21,7 @@ if (!file_exists(__DIR__ . '/config/config.php') || !filesize(__DIR__ . '/config
 }
 
 // setup change some PHP settings
-ini_set('memory_limit', '512M');
+ini_set('memory_limit', '1024M');
 
 // prevent session from messing up the browser cache
 ini_set('session.cache_limiter', 'nocache');
