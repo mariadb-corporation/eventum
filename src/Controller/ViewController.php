@@ -132,6 +132,14 @@ class ViewController extends BaseController
             $this->error(ev_gettext('Sorry, you do not have the required privileges to view this issue.'));
         }
 
+        $case_fld_id = Custom_Field::getIDByTitle("Case ID");
+        if ($case_fld_id) {
+            $case_id = Custom_Field::getDisplayValue($this->issue_id, $case_fld_id);
+            if ($case_id) {
+                $this->tpl->assign("case_id", $case_id);
+            }
+        }
+
         // if the issue has a different customer then the currently selected one, switch customers
         if (Auth::getCurrentRole() == User::ROLE_CUSTOMER
             && Auth::getCurrentCustomerID() != $details['iss_customer_id']
