@@ -16,6 +16,9 @@
 {/function}
 
 {block "content"}
+{if $core.project_id == 2 and $core.current_role == $core.roles.customer}
+Please visit our <a href="https://cloud.mariadb.com/csm?id=csm_cases&table=sn_customerservice_case&view=csp">new system</a> to view your issues
+{else}
 {if $core.current_role != $core.roles.customer}
 {include file="quick_filter_form.tpl.html"}
 {/if}
@@ -221,4 +224,5 @@
   <form target="_csvWindow" method="post" action="csv.php" name="csv_form" id="csv_form">
   <input type="hidden" name="csv_data" value="{$csv_data}">
   </form>
+{/if}
 {/block}
