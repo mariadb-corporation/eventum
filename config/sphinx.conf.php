@@ -65,6 +65,7 @@ source eventum
     sql_user            = <?php echo $dbconfig['username'] . "\n"; ?>
     sql_pass            = <?php echo $dbconfig['password'] . "\n"; ?>
     sql_db              = <?php echo $dbconfig['database'] . "\n"; ?>
+    mysql_ssl_ca        = /var/www/sites/support/config/skysql_chain.pem
 }
 
 

@@ -36,6 +36,8 @@ class PdoAdapter extends PdoAdapterBase implements AdapterInterface
 
         $options = [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::MYSQL_ATTR_SSL_CA => APP_CONFIG_PATH . '/skysql_chain.pem',
+	        PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
 
             // http://dev.mysql.com/doc/refman/5.7/en/sql-mode.html
             PDO::MYSQL_ATTR_INIT_COMMAND => "SET SQL_MODE = ''",

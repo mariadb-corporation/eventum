@@ -21,6 +21,7 @@ use Doctrine\ORM\Tools\Setup;
 use Eventum\Db\Types\UTCDateTimeType;
 use Eventum\Model\Entity;
 use Eventum\Model\Repository;
+use PDO;
 
 /**
  * @method static Repository\CommitFileRepository getCommitFileRepository()
@@ -55,6 +56,10 @@ class Doctrine
             'port' => $config['port'],
             'unix_socket' => isset($config['socket']) ? $config['socket'] : null,
             'charset' => 'utf8',
+            'driverOptions'   =>  [
+                PDO::MYSQL_ATTR_SSL_CA => APP_CONFIG_PATH . '/skysql_chain.pem',
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+            ]
         ];
 
         $config = Setup::createAnnotationMetadataConfiguration($paths, $isDevMode);
